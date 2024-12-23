@@ -642,7 +642,7 @@ class Main:
                 "",
                 "end",
                 values=(
-                    product_id,  # Now showing full ID since it's already short
+                    product_id,
                     data["name"],
                     f"Rp{data['price']:,}",
                     data["stock"],
@@ -667,7 +667,7 @@ class Main:
                 "",
                 "end",
                 values=(
-                    transaction["id"],  # Now showing full ID since it's already short
+                    transaction["id"],
                     transaction["date"].strftime("%Y-%m-%d"),
                     transaction["product"],
                     transaction["quantity"],
