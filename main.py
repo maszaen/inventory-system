@@ -5,66 +5,66 @@ from tkinter import ttk, messagebox  # ttk untuk widget, messagebox untuk popup
 from datetime import datetime  # Untuk handle tanggal dan waktu
 from decimal import Decimal  # Untuk handle angka desimal (uang)
 from tkcalendar import DateEntry  # Widget calendar untuk pilih tanggal
+import uuid
 
 
 class Main:
     def __init__(self):
-        # Inisialisasi window utama
         self.root = tk.Tk()
         self.root.title("Inventory System")
-        self.root.geometry("1000x600")  # Set ukuran window 1000x600 pixel
+        self.root.geometry("1000x600")
 
-        # Inisialisasi dictionary untuk nyimpen data
-        self.products = {}  # Untuk data produk
-        self.transactions = []  # Untuk data transaksi
+        # Modified data structures to include IDs
+        self.products = (
+            {}
+        )  # Format: {product_id: {"name": name, "price": price, "stock": stock}}
+        self.transactions = []  # Now includes transaction_id
 
-        # Bikin folder logs dan inventory kalo belum ada
         for directory in ["logs", "inventory"]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
-        # Load data dari file JSON
         self.load_data()
-
-        # Setup User Interface
         self.setup_ui()
-
-        # Refresh tampilan saat startup
         self.refresh_product_list()
         self.refresh_sales_list()
 
     def load_data(self):
-        # Load data produk dari JSON
         if os.path.exists("inventory/products.json"):
             with open("inventory/products.json", "r") as f:
                 self.products = json.load(f)
-                # Convert harga ke Decimal untuk akurasi
-                self.products = {
-                    k: {"price": Decimal(str(v["price"])), "stock": v["stock"]}
-                    for k, v in self.products.items()
-                }
+                # Convert price to Decimal and ensure product IDs exist
+                updated_products = {}
+                for product_id, product_data in self.products.items():
+                    if isinstance(product_data, dict) and "price" in product_data:
+                        product_data["price"] = Decimal(str(product_data["price"]))
+                        updated_products[product_id] = product_data
+                    else:
+                        # Handle old format data by creating new ID
+                        new_id = str(uuid.uuid4())
+                        updated_products[new_id] = {
+                            "name": product_id,  # Old key was the name
+                            "price": Decimal(str(product_data["price"])),
+                            "stock": product_data["stock"],
+                        }
+                self.products = updated_products
 
-        # Load data transaksi dari JSON
         if os.path.exists("inventory/sales.json"):
             with open("inventory/sales.json", "r") as f:
                 self.transactions = json.load(f)
-                # Convert data: tanggal ke datetime, total ke Decimal
-                self.transactions = [
-                    {
-                        "date": datetime.strptime(t["date"], "%Y-%m-%d").date(),
-                        "product": t["product"],
-                        "quantity": t["quantity"],
-                        "total": Decimal(str(t["total"])),
-                    }
-                    for t in self.transactions
-                ]
+                # Convert and ensure transaction IDs exist
+                for transaction in self.transactions:
+                    if "id" not in transaction:
+                        transaction["id"] = str(uuid.uuid4())
+                    transaction["date"] = datetime.strptime(
+                        transaction["date"], "%Y-%m-%d"
+                    ).date()
+                    transaction["total"] = Decimal(str(transaction["total"]))
 
     def save_data(self):
-        # Simpan data produk ke JSON
         with open("inventory/products.json", "w") as f:
             json.dump(self.products, f, default=str)
 
-        # Simpan data transaksi ke JSON
         with open("inventory/sales.json", "w") as f:
             json.dump(self.transactions, f, default=str)
 
@@ -116,14 +116,18 @@ class Main:
 
         # Setup tabel produk
         self.products_tree = ttk.Treeview(
-            tree_frame, columns=("Name", "Price", "Stock", "Actions"), show="headings"
+            tree_frame,
+            columns=("ID", "Name", "Price", "Stock", "Actions"),
+            show="headings",
         )
+        self.products_tree.heading("ID", text="ID")
         self.products_tree.heading("Name", text="Name")
         self.products_tree.heading("Price", text="Price")
         self.products_tree.heading("Stock", text="Stock")
         self.products_tree.heading("Actions", text="Actions")
 
-        # Set lebar kolom
+        # Adjust column widths
+        self.products_tree.column("ID", width=100)
         self.products_tree.column("Name", width=200)
         self.products_tree.column("Price", width=150)
         self.products_tree.column("Stock", width=100)
@@ -189,15 +193,17 @@ class Main:
         # Setup tabel transaksi
         self.sales_tree = ttk.Treeview(
             sales_tree_frame,
-            columns=("Date", "Product", "Quantity", "Total"),
+            columns=("ID", "Date", "Product", "Quantity", "Total"),
             show="headings",
         )
+        self.sales_tree.heading("ID", text="ID")
         self.sales_tree.heading("Date", text="Date")
         self.sales_tree.heading("Product", text="Product")
         self.sales_tree.heading("Quantity", text="Quantity")
         self.sales_tree.heading("Total", text="Total")
 
-        # Set lebar kolom transaksi
+        # Adjust sales column widths
+        self.sales_tree.column("ID", width=100)
         self.sales_tree.column("Date", width=150)
         self.sales_tree.column("Product", width=200)
         self.sales_tree.column("Quantity", width=100)
@@ -309,10 +315,12 @@ class Main:
             end_date = self.end_date.get_date()
 
             if start_date > end_date:
-                raise ValueError("Start date cannot be later than end date")
+                raise ValueError("Tanggal mulai tidak boleh setelah tanggal akhir.")
 
             filtered_transactions = [
-                t for t in self.transactions if start_date <= t["date"] <= end_date
+                transaction
+                for transaction in self.transactions
+                if start_date <= transaction["date"] <= end_date
             ]
 
             total_amount = sum(t["total"] for t in filtered_transactions)
@@ -335,7 +343,7 @@ class Main:
             summary += f"Total Transactions: {len(filtered_transactions)}\n"
             summary += f"Total Amount: Rp{total_amount:,}\n\n"
 
-            summary += "Product-wise Summary:\n"
+            summary += "Sales Detail:\n"
             summary += "-" * 50 + "\n"
             for product, data in product_summary.items():
                 summary += f"\nProduct: {product}\n"
@@ -357,70 +365,72 @@ class Main:
             f.write(log_entry)
 
     def update_search_tree(self, event=None):
-        # Update kolom tabel berdasarkan tipe pencarian
         search_type = self.search_type_var.get()
         if search_type == "Product":
-            self.search_tree["columns"] = ("Name", "Price", "Stock")
+            self.search_tree["columns"] = ("ID", "Name", "Price", "Stock")
+            self.search_tree.heading("ID", text="ID")
             self.search_tree.heading("Name", text="Name")
             self.search_tree.heading("Price", text="Price")
             self.search_tree.heading("Stock", text="Stock")
+            self.search_tree.column("ID", width=100)
             self.search_tree.column("Name", width=200)
             self.search_tree.column("Price", width=150)
             self.search_tree.column("Stock", width=100)
         elif search_type == "Transaction":
-            self.search_tree["columns"] = ("Date", "Product", "Quantity", "Total")
+            self.search_tree["columns"] = ("ID", "Date", "Product", "Quantity", "Total")
+            self.search_tree.heading("ID", text="ID")
             self.search_tree.heading("Date", text="Date")
             self.search_tree.heading("Product", text="Product")
             self.search_tree.heading("Quantity", text="Quantity")
             self.search_tree.heading("Total", text="Total")
+            self.search_tree.column("ID", width=100)
             self.search_tree.column("Date", width=150)
             self.search_tree.column("Product", width=200)
             self.search_tree.column("Quantity", width=100)
             self.search_tree.column("Total", width=150)
 
     def perform_search(self):
-        # Clear hasil pencarian
         for item in self.search_tree.get_children():
             self.search_tree.delete(item)
 
-        # Dapatkan input pencarian
         search_type = self.search_type_var.get()
         keyword = self.search_keyword_entry.get().strip().lower()
 
         if search_type == "Product":
-            # Cari di data produk
-            results = [
-                (name, f"Rp{data['price']:,}", data["stock"])
-                for name, data in self.products.items()
-                if keyword in name.lower()
-            ]
-        elif search_type == "Transaction":
-            # Cari di data transaksi
-            results = [
-                (
-                    t["date"].strftime("%Y-%m-%d"),
-                    t["product"],
-                    t["quantity"],
-                    f"Rp{t['total']:,}",
-                )
-                for t in self.transactions
-                if keyword in t["product"].lower()
-            ]
-        else:
             results = []
+            for product_id, data in self.products.items():
+                if keyword in data["name"].lower():
+                    results.append(
+                        (
+                            product_id[:8],
+                            data["name"],
+                            f"Rp{data['price']:,}",
+                            data["stock"],
+                        )
+                    )
+        elif search_type == "Transaction":
+            results = []
+            for t in self.transactions:
+                if keyword in t["product"].lower():
+                    results.append(
+                        (
+                            t["id"][:8],
+                            t["date"].strftime("%Y-%m-%d"),
+                            t["product"],
+                            t["quantity"],
+                            f"Rp{t['total']:,}",
+                        )
+                    )
 
-        # Tampilkan hasil di tabel
         for result in results:
             self.search_tree.insert("", "end", values=result)
 
     def add_product(self):
         try:
-            # Ambil input dari form
             name = self.name_entry.get().strip()
             price = Decimal(self.price_entry.get())
             stock = int(self.stock_entry.get())
 
-            # Validasi input
             if not name:
                 raise ValueError("Nama product harus diisi!")
             if price <= 0:
@@ -428,20 +438,23 @@ class Main:
             if stock < 0:
                 raise ValueError("Stock tidak boleh negatif")
 
-            # Simpan ke dictionary products
-            self.products[name] = {"price": price, "stock": stock}
+            # Check for duplicate names
+            for _, data in self.products.items():
+                if data["name"].lower() == name.lower():
+                    raise ValueError("Product dengan nama tersebut sudah ada!")
 
-            # Catat ke log
+            # Generate new product ID
+            product_id = str(uuid.uuid4())
+            self.products[product_id] = {"name": name, "price": price, "stock": stock}
+
             self.log_action(
-                f"Produk baru ditambahkan: {name} (Price: Rp {price:,}, Stock: {stock})"
+                f"Produk baru ditambahkan: {name} (ID: {product_id}, Price: Rp {price:,}, Stock: {stock})"
             )
 
-            # Clear form
             self.name_entry.delete(0, tk.END)
             self.price_entry.delete(0, tk.END)
             self.stock_entry.delete(0, tk.END)
 
-            # Refresh tampilan & save data
             self.refresh_product_list()
             self.save_data()
             messagebox.showinfo("Success", "Produk berhasil disimpan.")
@@ -450,63 +463,81 @@ class Main:
             messagebox.showerror("Error", str(e))
 
     def on_tree_double_click(self, event):
-        # Handle double click di tabel produk
-        selection = self.products_tree.selection()  # Ambil item yang dipilih
-        if not selection:  # Kalo ga ada yang kepilih, stop
+        selection = self.products_tree.selection()
+        if not selection:
             return
 
-        item = selection[0]  # Ambil item pertama yang dipilih
-        name = self.products_tree.item(item)["values"][0]  # Ambil nama produk
-        self.edit_product(name)  # Buka dialog edit
+        item = selection[0]
+        values = self.products_tree.item(item)["values"]
+        product_id = values[0]  # Get the ID from the first column
 
-    def edit_product(self, name):
-        # Handle edit produk yang sudah ada
-        if name not in self.products:
+        # Find the full ID from the shortened version
+        full_product_id = None
+        for pid in self.products.keys():
+            if pid.startswith(product_id):
+                full_product_id = pid
+                break
+
+        if full_product_id:
+            self.edit_product(full_product_id)
+
+    def edit_product(self, product_id):
+        if product_id not in self.products:
             return
 
-        # Bikin window dialog
+        product_data = self.products[product_id]
+
         dialog = tk.Toplevel(self.root)
-        dialog.title(f"Ubah Product: {name}")
+        dialog.title(f"Ubah Product: {product_data['name']}")
         dialog.geometry("300x200")
         dialog.transient(self.root)
-        dialog.grab_set()  # Bikin dialog modal
+        dialog.grab_set()
 
-        # Form edit
+        ttk.Label(dialog, text="Name:").pack(pady=5)
+        name_entry = ttk.Entry(dialog)
+        name_entry.insert(0, product_data["name"])
+        name_entry.pack(pady=5)
+
         ttk.Label(dialog, text="Price:").pack(pady=5)
         price_entry = ttk.Entry(dialog)
-        price_entry.insert(0, str(self.products[name]["price"]))
+        price_entry.insert(0, str(product_data["price"]))
         price_entry.pack(pady=5)
 
         ttk.Label(dialog, text="Stock:").pack(pady=5)
         stock_entry = ttk.Entry(dialog)
-        stock_entry.insert(0, str(self.products[name]["stock"]))
+        stock_entry.insert(0, str(product_data["stock"]))
         stock_entry.pack(pady=5)
 
         def save_changes():
             try:
-                # Ambil input baru
+                new_name = name_entry.get().strip()
                 new_price = Decimal(price_entry.get())
                 new_stock = int(stock_entry.get())
 
-                # Validasi
+                if not new_name:
+                    raise ValueError("Nama product harus diisi!")
                 if new_price <= 0:
                     raise ValueError("Price harus bernilai positif")
                 if new_stock < 0:
                     raise ValueError("Stock tidak boleh negatif")
 
-                # Simpan perubahan
-                old_values = self.products[name].copy()
-                self.products[name]["price"] = new_price
-                self.products[name]["stock"] = new_stock
+                # Check for duplicate names, excluding current product
+                for pid, data in self.products.items():
+                    if pid != product_id and data["name"].lower() == new_name.lower():
+                        raise ValueError("Product dengan nama tersebut sudah ada!")
 
-                # Catat ke log
+                old_values = self.products[product_id].copy()
+                self.products[product_id].update(
+                    {"name": new_name, "price": new_price, "stock": new_stock}
+                )
+
                 self.log_action(
-                    f"Edited product: {name}\n"
+                    f"Edited product ID: {product_id}\n"
+                    f"  Name: {old_values['name']} → {new_name}\n"
                     f"  Price: Rp {old_values['price']:,} → Rp {new_price:,}\n"
                     f"  Stock: {old_values['stock']} → {new_stock}"
                 )
 
-                # Refresh & save
                 self.refresh_product_list()
                 self.save_data()
                 dialog.destroy()
@@ -517,52 +548,57 @@ class Main:
 
         def delete_this_product():
             dialog.destroy()
-            self.delete_product(name)
+            self.delete_product(product_id)
 
         # Tombol Save dan Delete
         btn_frame = ttk.Frame(dialog)
         btn_frame.pack(pady=20)
 
-        ttk.Button(btn_frame, text="Save Changes", command=save_changes).pack(
+        ttk.Button(btn_frame, text="Simpan", command=save_changes).pack(
             side="left", padx=5
         )
-        ttk.Button(btn_frame, text="Delete Product", command=delete_this_product).pack(
+        ttk.Button(btn_frame, text="Hapus Produk", command=delete_this_product).pack(
             side="left", padx=5
         )
 
-    def delete_product(self, name):
-        # Handle delete produk
-        if name in self.products:
+    def delete_product(self, product_id):
+        if product_id in self.products:
+            product_data = self.products[product_id]
             if messagebox.askyesno(
-                "Konfirmasi Penghapusan", f"Apakah kamu yakin ingin menghapus {name}?"
+                "Konfirmasi Penghapusan",
+                f"Apakah kamu yakin ingin menghapus {product_data['name']}?",
             ):
-                product_info = self.products[name]
-                del self.products[name]
-                # Catat ke log
+                # Log deletion before deleting
                 self.log_action(
-                    f"Deleted product: {name} "
-                    f"(Price: Rp {product_info['price']:,}, "
-                    f"Stock: {product_info['stock']})"
+                    f"Deleted product: {product_data['name']} "
+                    f"(ID: {product_id}, "
+                    f"Price: Rp {product_data['price']:,}, "
+                    f"Stock: {product_data['stock']})"
                 )
+                del self.products[product_id]
                 self.refresh_product_list()
                 self.save_data()
                 messagebox.showinfo("Success", "Product berhasil terhapus!")
 
     def record_sale(self):
         try:
-            # Ambil input penjualan
-            product_name = self.sale_product_var.get()  # Nama produk dari dropdown
-            quantity = int(self.quantity_entry.get())  # Jumlah yang dijual
-            sale_date = self.date_picker.get_date()  # Tanggal dari date picker
+            product_name = self.sale_product_var.get()
+            quantity = int(self.quantity_entry.get())
+            sale_date = self.date_picker.get_date()
 
-            # Validasi input
-            if not product_name in self.products:
+            # Find product ID by name
+            product_id = None
+            for pid, data in self.products.items():
+                if data["name"] == product_name:
+                    product_id = pid
+                    break
+
+            if not product_id:
                 raise ValueError("Pilih produk yang tersedia")
             if quantity <= 0:
                 raise ValueError("Quantity harus bernilai positif")
 
-            # Cek stok cukup tidak
-            current_stock = self.products[product_name]["stock"]
+            current_stock = self.products[product_id]["stock"]
             if quantity > current_stock:
                 raise ValueError(
                     f"Stock tidak mencukupi!\n"
@@ -570,92 +606,89 @@ class Main:
                     f"Tersedia: {current_stock}pcs"
                 )
 
-            # Hitung total penjualan
-            total = self.products[product_name]["price"] * quantity
-
-            # Update stok
+            total = self.products[product_id]["price"] * quantity
             old_stock = current_stock
-            self.products[product_name]["stock"] -= quantity
+            self.products[product_id]["stock"] -= quantity
 
-            # Catat transaksi
+            # Generate transaction ID
+            transaction_id = str(uuid.uuid4())
             self.transactions.append(
                 {
+                    "id": transaction_id,
                     "date": sale_date,
+                    "product_id": product_id,
                     "product": product_name,
                     "quantity": quantity,
                     "total": total,
                 }
             )
 
-            # Catat ke log file
             self.log_action(
-                f"Recorded sale: {product_name}\n"
+                f"Recorded sale: ID: {transaction_id}\n"
+                f"  Product: {product_name} (ID: {product_id})\n"
                 f"  Date: {sale_date.strftime('%Y-%m-%d')}\n"
                 f"  Quantity: {quantity}\n"
                 f"  Total: Rp {total:,}\n"
-                f"  Stock: {old_stock} → {self.products[product_name]['stock']}"
+                f"  Stock: {old_stock} → {self.products[product_id]['stock']}"
             )
 
-            # Clear form input
             self.sale_product_var.set("")
             self.quantity_entry.delete(0, tk.END)
 
-            # Refresh tampilan & save data
             self.refresh_product_list()
             self.refresh_sales_list()
             self.save_data()
 
-            # Tampilkan notifikasi sukses
             messagebox.showinfo(
                 "Transaksi Berhasil",
                 f"Transaksi berhasil disimpan!\n\n"
+                f"Transaction ID: {transaction_id}\n"
                 f"Date: {sale_date.strftime('%Y-%m-%d')}\n"
                 f"Product: {product_name}\n"
                 f"Quantity: {quantity}\n"
                 f"Total: Rp{total:,}\n"
-                f"Remaining Stock: {self.products[product_name]['stock']}",
+                f"Remaining Stock: {self.products[product_id]['stock']}",
             )
 
         except ValueError as e:
             messagebox.showerror("Error", str(e))
 
     def refresh_product_list(self, event=None):
-        # Clear semua item di tabel produk
         for item in self.products_tree.get_children():
             self.products_tree.delete(item)
 
-        # Refresh list produk
-        for name, data in self.products.items():
+        for product_id, data in self.products.items():
             self.products_tree.insert(
                 "",
                 "end",
                 values=(
-                    name,
+                    product_id[:8],  # Show shortened UUID for readability
+                    data["name"],
                     f"Rp{data['price']:,}",
                     data["stock"],
                     "Double-click untuk edit",
                 ),
             )
 
-        # Update nilai di combobox produk
-        self.sale_product_combo["values"] = list(self.products.keys())
+        # Update combobox with product names
+        self.sale_product_combo["values"] = [
+            data["name"] for data in self.products.values()
+        ]
 
     def refresh_sales_list(self):
-        # Clear semua item di tabel sales
         for item in self.sales_tree.get_children():
             self.sales_tree.delete(item)
 
-        # Sort transaksi berdasarkan tanggal terbaru
         sorted_transactions = sorted(
             self.transactions, key=lambda x: x["date"], reverse=True
         )
 
-        # Refresh list penjualan
         for transaction in sorted_transactions:
             self.sales_tree.insert(
                 "",
                 "end",
                 values=(
+                    transaction["id"][:8],  # Show shortened UUID for readability
                     transaction["date"].strftime("%Y-%m-%d"),
                     transaction["product"],
                     transaction["quantity"],

@@ -1,0 +1,13 @@
+[2024-12-23 08:50:49] Produk baru ditambahkan: Samsung (ID: c8605562-c147-4a0e-bfe6-8734f8dc2862, Price: Rp 18,000,000, Stock: 10)
+[2024-12-23 08:52:40] Recorded sale: ID: 263bbebc-843f-45db-b64e-d1eab5777f8f
+  Product: Samsung (ID: c8605562-c147-4a0e-bfe6-8734f8dc2862)
+  Date: 2024-12-23
+  Quantity: 2
+  Total: Rp 36,000,000
+  Stock: 10 → 8
+[2024-12-23 08:54:27] Recorded sale: ID: 938292fd-f8b8-4ddd-a2d5-2fb81f467f3c
+  Product: Samsung (ID: c8605562-c147-4a0e-bfe6-8734f8dc2862)
+  Date: 2024-12-24
+  Quantity: 1
+  Total: Rp 18,000,000
+  Stock: 8 → 7
