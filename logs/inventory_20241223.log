@@ -14,3 +14,38 @@
   Name: adsf → iPhone XR
   Price: Rp 20,000 → Rp 5,000,000
   Stock: 10 → 15
+[2024-12-23 18:54:04] Recorded sale: ID: DL98XQ
+  Product: iPhone XR (ID: U7WGMN)
+  Date: 2024-12-23
+  Quantity: 2
+  Total: Rp 10,000,000
+  Stock: 15 → 13
+[2024-12-23 20:29:36] New product added: Samsung S24 + (ID: ZCXFLJ, Price: Rp 9,000,000, Stock: 10)
+[2024-12-23 20:31:00] Deleted sale: ID: AESYQS
+  Product: adf
+  Date: 2024-12-23
+  Quantity: 2
+  Total: Rp 24
+[2024-12-23 20:31:05] Deleted sale: ID: DL98XQ
+  Product: iPhone XR
+  Date: 2024-12-23
+  Quantity: 2
+  Total: Rp 10,000,000
+[2024-12-23 21:02:26] Sale recorded: ID: SKHMXO
+  Product: iPhone XR (ID: U7WGMN)
+  Date: 2024-12-23
+  Quantity: 2
+  Total: Rp 10,000,000
+  Stock: 15 → 13
+[2024-12-23 21:50:09] Recorded sale: ID: 5KZ4PA
+  Product: iPhone XR (ID: U7WGMN)
+  Date: 2024-12-23
+  Quantity: 2
+  Total: Rp 10,000,000
+  Stock: 13 → 11
+[2024-12-23 21:50:15] Recorded sale: ID: PFE6ZK
+  Product: Samsung S24 + (ID: ZCXFLJ)
+  Date: 2024-12-23
+  Quantity: 1
+  Total: Rp 9,000,000
+  Stock: 10 → 9

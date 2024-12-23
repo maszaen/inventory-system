@@ -5,7 +5,8 @@ from tkinter import ttk, messagebox
 from datetime import datetime
 from decimal import Decimal
 from tkcalendar import DateEntry
-import uuid
+import random
+import string
 
 
 class Main:
@@ -14,11 +15,8 @@ class Main:
         self.root.title("Inventory System")
         self.root.geometry("1000x600")
 
-        # Modified data structures to include IDs
-        self.products = (
-            {}
-        )  # Format: {product_id: {"name": name, "price": price, "stock": stock}}
-        self.transactions = []  # Now includes transaction_id
+        self.products = {}
+        self.transactions = []
 
         for directory in ["logs", "inventory"]:
             if not os.path.exists(directory):
@@ -26,36 +24,20 @@ class Main:
 
         self.load_data()
         self.setup_ui()
-        self.refresh_product_list()
-        self.refresh_sales_list()
 
     def load_data(self):
         if os.path.exists("inventory/products.json"):
             with open("inventory/products.json", "r") as f:
                 self.products = json.load(f)
-                # Convert price to Decimal and ensure product IDs exist
-                updated_products = {}
-                for product_id, product_data in self.products.items():
-                    if isinstance(product_data, dict) and "price" in product_data:
-                        product_data["price"] = Decimal(str(product_data["price"]))
-                        updated_products[product_id] = product_data
-                    else:
-                        # Handle old format data by creating new ID
-                        new_id = str(uuid.uuid4())
-                        updated_products[new_id] = {
-                            "name": product_id,  # Old key was the name
-                            "price": Decimal(str(product_data["price"])),
-                            "stock": product_data["stock"],
-                        }
-                self.products = updated_products
+
+                for product_data in self.products.values():
+                    product_data["price"] = Decimal(str(product_data["price"]))
 
         if os.path.exists("inventory/sales.json"):
             with open("inventory/sales.json", "r") as f:
                 self.transactions = json.load(f)
-                # Convert and ensure transaction IDs exist
+
                 for transaction in self.transactions:
-                    if "id" not in transaction:
-                        transaction["id"] = str(uuid.uuid4())
                     transaction["date"] = datetime.strptime(
                         transaction["date"], "%Y-%m-%d"
                     ).date()
@@ -69,7 +51,6 @@ class Main:
             json.dump(self.transactions, f, default=str)
 
     def setup_ui(self):
-        # Bikin notebook (container untuk tab)
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(expand=True, fill="both", padx=10, pady=5)
 
@@ -106,6 +87,11 @@ class Main:
             side="left", padx=5
         )
 
+        # Tombol Edit Product
+        ttk.Button(input_frame, text="Edit Data", command=self.edit_selected_data).pack(
+            side="right", padx=5
+        )
+
         # Tabel produk dengan scrollbar
         ttk.Label(
             products_frame, text="List Product", font=("Helvetica", 12, "bold")
@@ -114,24 +100,23 @@ class Main:
         tree_frame = ttk.Frame(products_frame)
         tree_frame.pack(fill="both", expand=True, padx=5)
 
-        # Setup tabel produk
+        # Setup tabel produk dengan border
         self.products_tree = ttk.Treeview(
             tree_frame,
-            columns=("ID", "Name", "Price", "Stock", "Actions"),
+            columns=("ID", "Name", "Price", "Stock"),
             show="headings",
+            style="Custom.Treeview",
         )
         self.products_tree.heading("ID", text="ID")
         self.products_tree.heading("Name", text="Name")
         self.products_tree.heading("Price", text="Price")
         self.products_tree.heading("Stock", text="Stock")
-        self.products_tree.heading("Actions", text="Actions")
 
         # Adjust column widths
         self.products_tree.column("ID", width=100)
         self.products_tree.column("Name", width=200)
         self.products_tree.column("Price", width=150)
         self.products_tree.column("Stock", width=100)
-        self.products_tree.column("Actions", width=200)
 
         # Tambah scrollbar ke tabel
         scrollbar = ttk.Scrollbar(
@@ -141,9 +126,6 @@ class Main:
 
         self.products_tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-
-        # Bind event double click untuk edit produk
-        self.products_tree.bind("<Double-1>", self.on_tree_double_click)
 
         # === TAB SALES ===
         sales_frame = ttk.Frame(self.notebook)
@@ -228,11 +210,6 @@ class Main:
         search_frame = ttk.Frame(self.notebook)
         self.notebook.add(search_frame, text="Search")
 
-        # Bagian Pencarian
-        ttk.Label(search_frame, text="Cari Data", font=("Helvetica", 12, "bold")).pack(
-            pady=5
-        )
-
         search_input_frame = ttk.Frame(search_frame)
         search_input_frame.pack(fill="x", padx=5, pady=5)
 
@@ -252,7 +229,7 @@ class Main:
         self.search_keyword_entry.pack(side="left", padx=5)
 
         # Tombol Search
-        ttk.Button(search_input_frame, text="Search", command=self.perform_search).pack(
+        ttk.Button(search_input_frame, text="Search", command=self.search_data).pack(
             side="left", padx=5
         )
 
@@ -270,10 +247,10 @@ class Main:
         search_scrollbar.pack(side="right", fill="y")
 
         # Inisialisasi kolom tabel hasil pencarian
-        self.update_search_tree("Product")
+        self.update_search_table("Product")
 
         # Event handler untuk dropdown search type
-        search_type_combo.bind("<<ComboboxSelected>>", self.update_search_tree)
+        search_type_combo.bind("<<ComboboxSelected>>", self.update_search_table)
 
         # === TAB SUMMARY ===
         summary_frame = ttk.Frame(self.notebook)
@@ -308,6 +285,10 @@ class Main:
 
         self.summary_text = tk.Text(summary_frame, height=20, width=60)
         self.summary_text.pack(padx=5, pady=5, fill="both", expand=True)
+
+    def generate_short_id(self, length=6):
+        characters = string.ascii_uppercase + string.digits
+        return "".join(random.choices(characters, k=length))
 
     def generate_summary(self):
         try:
@@ -364,7 +345,7 @@ class Main:
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(log_entry)
 
-    def update_search_tree(self, event=None):
+    def update_search_table(self, event=None):
         search_type = self.search_type_var.get()
         if search_type == "Product":
             self.search_tree["columns"] = ("ID", "Name", "Price", "Stock")
@@ -389,7 +370,7 @@ class Main:
             self.search_tree.column("Quantity", width=100)
             self.search_tree.column("Total", width=150)
 
-    def perform_search(self):
+    def search_data(self):
         for item in self.search_tree.get_children():
             self.search_tree.delete(item)
 
@@ -438,13 +419,15 @@ class Main:
             if stock < 0:
                 raise ValueError("Stock tidak boleh negatif")
 
-            # Check for duplicate names
+            # Validasi duplikat data
             for _, data in self.products.items():
                 if data["name"].lower() == name.lower():
                     raise ValueError("Product dengan nama tersebut sudah ada!")
 
-            # Generate new product ID
-            product_id = str(uuid.uuid4())
+            product_id = self.generate_short_id()
+            while product_id in self.products:
+                product_id = self.generate_short_id()
+
             self.products[product_id] = {"name": name, "price": price, "stock": stock}
 
             self.log_action(
@@ -462,24 +445,18 @@ class Main:
         except ValueError as e:
             messagebox.showerror("Error", str(e))
 
-    def on_tree_double_click(self, event):
+    def edit_selected_data(self):
         selection = self.products_tree.selection()
         if not selection:
+            messagebox.showerror("Error", "Pilih produk yang ingin diubah.")
             return
 
         item = selection[0]
         values = self.products_tree.item(item)["values"]
-        product_id = values[0]  # Get the ID from the first column
+        product_id = values[0]
 
-        # Find the full ID from the shortened version
-        full_product_id = None
-        for pid in self.products.keys():
-            if pid.startswith(product_id):
-                full_product_id = pid
-                break
-
-        if full_product_id:
-            self.edit_product(full_product_id)
+        if product_id in self.products:
+            self.edit_product(product_id)
 
     def edit_product(self, product_id):
         if product_id not in self.products:
@@ -610,8 +587,11 @@ class Main:
             old_stock = current_stock
             self.products[product_id]["stock"] -= quantity
 
-            # Generate transaction ID
-            transaction_id = str(uuid.uuid4())
+            # Generate short transaction ID
+            transaction_id = self.generate_short_id()
+            while any(t["id"] == transaction_id for t in self.transactions):
+                transaction_id = self.generate_short_id()
+
             self.transactions.append(
                 {
                     "id": transaction_id,
@@ -662,11 +642,10 @@ class Main:
                 "",
                 "end",
                 values=(
-                    product_id[:8],  # Show shortened UUID for readability
+                    product_id,  # Now showing full ID since it's already short
                     data["name"],
                     f"Rp{data['price']:,}",
                     data["stock"],
-                    "Double-click untuk edit",
                 ),
             )
 
@@ -688,7 +667,7 @@ class Main:
                 "",
                 "end",
                 values=(
-                    transaction["id"][:8],  # Show shortened UUID for readability
+                    transaction["id"],  # Now showing full ID since it's already short
                     transaction["date"].strftime("%Y-%m-%d"),
                     transaction["product"],
                     transaction["quantity"],
