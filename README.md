@@ -1,4 +1,4 @@
-# Inventory System v5.0
+# Inventory System v4.0
 
 Sistem manajemen inventori dan penjualan dengan MongoDB Atlas.
 
