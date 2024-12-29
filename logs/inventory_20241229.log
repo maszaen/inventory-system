@@ -1,0 +1,50 @@
+[2024-12-29 09:45:34] Sale recorded: ID: 6H3GSQ
+  Product: Samsung A55 (ID: E0RDLV)
+  Date: 2024-12-06
+  Quantity: 2
+  Total: Rp 11,980,000
+  Stock: 32 → 30
+[2024-12-29 11:19:44] Created new product: Samsung S24 Ultra (ID: 6770cde0af2f2175aca96774, Price: 20000000, Stock: 5)
+[2024-12-29 15:07:26] Updated product: Samsung S24 Ultra (ID: 6770cde0af2f2175aca96774, Price: 20000000, Stock: 10)
+[2024-12-29 15:10:26] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 2
+  Total: 40000000
+  Stock: 10 → 8
+[2024-12-29 15:17:07] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 1
+  Total: 20000000
+  Stock: 8 → 7
+[2024-12-29 15:17:21] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 4
+  Total: 80000000
+  Stock: 7 → 3
+[2024-12-29 16:46:05] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 1
+  Total: 20000000
+  Stock: 3 → 2
+[2024-12-29 16:47:06] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 1
+  Total: 20000000
+  Stock: 2 → 1
+[2024-12-29 16:52:38] Created new product: iPhone 16 Pro (ID: 67711be6a7129f40d8178574, Price: 24999000, Stock: 10)
+[2024-12-29 16:53:04] New sale recorded:
+  Product: iPhone 16 Pro
+  Quantity: 1
+  Total: 24999000
+  Stock: 10 → 9
+[2024-12-29 16:54:41] New sale recorded:
+  Product: iPhone 16 Pro
+  Quantity: 1
+  Total: 24999000
+  Stock: 9 → 8
+[2024-12-29 16:54:59] Created new product: iPhone XS (ID: 67711c736d6fd92cb7b6e3f0, Price: 5999000, Stock: 3)
+[2024-12-29 16:56:13] New sale recorded:
+  Product: iPhone XS
+  Quantity: 1
+  Total: 5999000
+  Stock: 3 → 2
