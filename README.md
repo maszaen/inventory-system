@@ -150,5 +150,5 @@ Untuk berkontribusi:
 ## Contact
 
 Untuk pertanyaan dan dukungan:
-- Email: your.email@example.com
+- Email: zaeni@students.amikom.ac.id
 - GitHub Issues: [Create new issue](https://github.com/maszaen/inventory-system/issues)
