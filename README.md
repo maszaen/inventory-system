@@ -67,7 +67,7 @@ inventory_system/
 └── config/             # Konfigurasi
 ```
 
-## Penggunaan
+## Panduan Penggunaan
 
 1. Jalankan aplikasi:
 ```bash
