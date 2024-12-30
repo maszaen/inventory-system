@@ -77,6 +77,10 @@ class TransactionManager:
         transactions = self.collection.find().sort("date", -1)
         return [Transaction.from_dict(t) for t in transactions]
 
+    def get_transaction_by_id(self, transaction_id: ObjectId) -> Optional[Transaction]:
+        transaction = self.collection.find_one({"_id": transaction_id})
+        return Transaction.from_dict(transaction) if transaction else None
+
     def get_transactions_by_date_range(
         self, start_date: date, end_date: date
     ) -> List[Transaction]:
@@ -97,13 +101,3 @@ class TransactionManager:
     def delete_transaction(self, transaction_id: ObjectId) -> bool:
         result = self.collection.delete_one({"_id": transaction_id})
         return result.deleted_count > 0
-
-    def get_transaction_by_id(self, transaction_id: ObjectId) -> Optional[Transaction]:
-        transaction = self.collection.find_one({"_id": transaction_id})
-        return Transaction.from_dict(transaction) if transaction else None
-
-    def update_transaction(self, transaction: Transaction) -> bool:
-        result = self.collection.update_one(
-            {"_id": transaction._id}, {"$set": transaction.to_dict()}
-        )
-        return result.modified_count > 0

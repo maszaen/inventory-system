@@ -76,7 +76,6 @@ class SaleDialog:
 
     def save_sale(self):
         try:
-            # Get input values
             sale_date = self.date_picker.get_date()
             product_name = self.product_var.get()
             quantity = int(self.quantity_entry.get())
@@ -97,61 +96,116 @@ class SaleDialog:
             if not selected_product:
                 raise ValueError("Product not found")
 
-            # Check stock availability
-            if quantity > selected_product.stock:
-                raise ValueError(
-                    f"Insufficient stock!\n"
-                    f"Requested: {quantity}\n"
-                    f"Available: {selected_product.stock}"
-                )
-
             # Calculate total
             total = selected_product.price * quantity
 
-            # Create and save transaction first
-            transaction = Transaction(
-                product_id=selected_product._id,
-                product_name=product_name,
-                quantity=quantity,
-                total=total,
-                date=sale_date,
-            )
+            if self.transaction:
+                old_product = self.product_manager.get_product_by_id(
+                    self.transaction.product_id
+                )
+                if old_product:
+                    old_product.stock += self.transaction.quantity
+                    if not self.product_manager.update_product(old_product):
+                        raise ValueError("Failed to restore product stock")
 
-            # Save transaction
-            if not self.transaction_manager.create_transaction(transaction):
-                raise ValueError("Failed to create transaction")
+                # Validasi stok untuk transaksi baru
+                if quantity > selected_product.stock + self.transaction.quantity:
+                    raise ValueError(
+                        f"Insufficient stock!\n"
+                        f"Requested: {quantity}\n"
+                        f"Available: {selected_product.stock + self.transaction.quantity}"
+                    )
 
-            # If transaction successful, update stock
-            old_stock = selected_product.stock
-            selected_product.stock -= quantity
+                # Perbarui transaksi dengan data baru
+                old_quantity = self.transaction.quantity
+                self.transaction.date = sale_date
+                self.transaction.product_id = selected_product._id
+                self.transaction.product_name = product_name
+                self.transaction.quantity = quantity
+                self.transaction.total = total
 
-            # Update product stock
-            if not self.product_manager.update_product(selected_product):
-                # If stock update fails, try to delete the transaction
-                self.transaction_manager.delete_transaction(transaction._id)
-                raise ValueError("Failed to update product stock")
+                # Perbarui stok produk
+                selected_product.stock += old_quantity  # Pulihkan stok lama
+                selected_product.stock -= quantity  # Kurangi stok dengan kuantitas baru
 
-            # Log the successful transaction
-            self.logger.log_action(
-                f"New sale recorded:\n"
-                f"  Product: {product_name}\n"
-                f"  Quantity: {quantity}\n"
-                f"  Total: {total}\n"
-                f"  Stock: {old_stock} → {selected_product.stock}"
-            )
+                # Simpan transaksi dan perbarui stok produk
+                if not self.transaction_manager.update_transaction(self.transaction):
+                    # Rollback jika pembaruan transaksi gagal
+                    selected_product.stock += quantity  # Pulihkan stok baru
+                    selected_product.stock -= old_quantity  # Kembalikan stok lama
+                    self.product_manager.update_product(selected_product)
+                    raise ValueError("Failed to update transaction")
+
+                if not self.product_manager.update_product(selected_product):
+                    # Rollback jika pembaruan stok gagal
+                    selected_product.stock += quantity  # Pulihkan stok baru
+                    selected_product.stock -= old_quantity  # Kembalikan stok lama
+                    self.transaction.quantity = (
+                        old_quantity  # Kembalikan transaksi lama
+                    )
+                    self.transaction_manager.update_transaction(self.transaction)
+                    raise ValueError("Failed to update product stock")
+
+                # Log perubahan berhasil
+                self.logger.log_action(
+                    f"Sale updated:\n"
+                    f"  Transaction ID: {self.transaction._id}\n"
+                    f"  Product: {product_name}\n"
+                    f"  Quantity: {quantity}\n"
+                    f"  Total: {total}\n"
+                    f"  Stock: {selected_product.stock + old_quantity} → {selected_product.stock}"
+                )
+
+            else:
+                # Check stock availability for new transaction
+                if quantity > selected_product.stock:
+                    raise ValueError(
+                        f"Insufficient stock!\n"
+                        f"Requested: {quantity}\n"
+                        f"Available: {selected_product.stock}"
+                    )
+
+                # Create and save new transaction
+                transaction = Transaction(
+                    product_id=selected_product._id,
+                    product_name=product_name,
+                    quantity=quantity,
+                    total=total,
+                    date=sale_date,
+                )
+
+                # Save transaction
+                if not self.transaction_manager.create_transaction(transaction):
+                    raise ValueError("Failed to create transaction")
+
+                # Update stock
+                old_stock = selected_product.stock
+                selected_product.stock -= quantity
+                if not self.product_manager.update_product(selected_product):
+                    # Rollback: delete the transaction if stock update fails
+                    self.transaction_manager.delete_transaction(transaction._id)
+                    raise ValueError("Failed to update product stock")
+
+                # Log the successful creation
+                self.logger.log_action(
+                    f"New sale recorded:\n"
+                    f"  Product: {product_name}\n"
+                    f"  Quantity: {quantity}\n"
+                    f"  Total: {total}\n"
+                    f"  Stock: {old_stock} → {selected_product.stock}"
+                )
 
             if self.refresh_callback:
                 self.refresh_callback()
 
             messagebox.showinfo(
                 "Success",
-                f"Sale recorded successfully!\n\n"
+                f"{'Sale updated' if self.transaction else 'Sale recorded'} successfully!\n\n"
                 f"Product: {product_name}\n"
                 f"Quantity: {quantity}\n"
                 f"Total: Rp{total:,.2f}",
             )
 
-            # Close dialog and refresh product list
             self.dialog.destroy()
 
         except ValueError as e:
