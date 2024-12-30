@@ -1,24 +1,34 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+# src/ui/tabs/summary_tab.py
+import customtkinter as ctk
 from tkcalendar import DateEntry
+from CTkMessagebox import CTkMessagebox
 from datetime import datetime
 from decimal import Decimal
 
 
-class SummaryTab(ttk.Frame):
+class SummaryTab(ctk.CTkFrame):
     def __init__(self, parent, transaction_manager):
         super().__init__(parent)
         self.transaction_manager = transaction_manager
         self.setup_ui()
+        self.pack(fill="both", expand=True)
 
     def setup_ui(self):
-        # Date selection frame
-        date_frame = ttk.Frame(self)
-        date_frame.pack(fill="x", padx=5, pady=5)
+        # Main container
+        main_container = ctk.CTkFrame(self)
+        main_container.pack(fill="both", expand=True, padx=10, pady=5)
 
-        ttk.Label(date_frame, text="Start Date:").pack(side="left", padx=5)
+        # Date selection frame
+        date_frame = ctk.CTkFrame(main_container)
+        date_frame.pack(fill="x", pady=10)
+
+        # Start date
+        start_date_frame = ctk.CTkFrame(date_frame)
+        start_date_frame.pack(side="left", padx=5)
+
+        ctk.CTkLabel(start_date_frame, text="Start Date:").pack(side="left", padx=5)
         self.start_date = DateEntry(
-            date_frame,
+            start_date_frame,
             width=12,
             background="darkblue",
             foreground="white",
@@ -26,9 +36,13 @@ class SummaryTab(ttk.Frame):
         )
         self.start_date.pack(side="left", padx=5)
 
-        ttk.Label(date_frame, text="End Date:").pack(side="left", padx=5)
+        # End date
+        end_date_frame = ctk.CTkFrame(date_frame)
+        end_date_frame.pack(side="left", padx=5)
+
+        ctk.CTkLabel(end_date_frame, text="End Date:").pack(side="left", padx=5)
         self.end_date = DateEntry(
-            date_frame,
+            end_date_frame,
             width=12,
             background="darkblue",
             foreground="white",
@@ -36,13 +50,21 @@ class SummaryTab(ttk.Frame):
         )
         self.end_date.pack(side="left", padx=5)
 
-        ttk.Button(
-            date_frame, text="Generate Summary", command=self.generate_summary
-        ).pack(side="left", padx=5)
+        # Generate button
+        ctk.CTkButton(
+            date_frame,
+            text="Generate Summary",
+            command=self.generate_summary,
+            height=32,
+        ).pack(side="left", padx=20)
 
-        # Summary text area
-        self.summary_text = tk.Text(self, height=20, width=60)
-        self.summary_text.pack(padx=5, pady=5, fill="both", expand=True)
+        # Summary text area frame
+        text_frame = ctk.CTkFrame(main_container)
+        text_frame.pack(fill="both", expand=True, pady=10)
+
+        # Text widget for summary
+        self.summary_text = ctk.CTkTextbox(text_frame, wrap="word", height=400)
+        self.summary_text.pack(fill="both", expand=True)
 
     def generate_summary(self):
         try:
@@ -52,12 +74,12 @@ class SummaryTab(ttk.Frame):
             if start_date > end_date:
                 raise ValueError("Start date cannot be after end date")
 
-            # Dapatkan transaksi dalam range tanggal
+            # Get transactions in date range
             transactions = self.transaction_manager.get_transactions_by_date_range(
                 start_date, end_date
             )
 
-            # Hitung total dan ringkasan per produk
+            # Calculate totals and summary per product
             total_amount = Decimal("0")
             product_summary = {}
 
@@ -93,10 +115,10 @@ class SummaryTab(ttk.Frame):
                 summary += "No transactions found in this date range."
 
             # Update text widget
-            self.summary_text.delete(1.0, tk.END)
-            self.summary_text.insert(1.0, summary)
+            self.summary_text.delete("1.0", "end")
+            self.summary_text.insert("1.0", summary)
 
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            CTkMessagebox(title="Error", message=str(e))
         except Exception as e:
-            messagebox.showerror("Error", f"An error occurred: {str(e)}")
+            CTkMessagebox(title="Error", message=f"An error occurred: {str(e)}")

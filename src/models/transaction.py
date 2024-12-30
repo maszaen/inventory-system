@@ -98,6 +98,9 @@ class TransactionManager:
             print(f"Error getting transactions: {e}")
             return []
 
+    def get_recent_transactions(self, limit=5):
+        return self.collection.find().sort("date", -1).limit(limit)
+
     def delete_transaction(self, transaction_id: ObjectId) -> bool:
         result = self.collection.delete_one({"_id": transaction_id})
         return result.deleted_count > 0

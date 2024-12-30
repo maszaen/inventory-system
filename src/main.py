@@ -1,4 +1,4 @@
-import tkinter as tk
+from tkinter import messagebox
 import os
 import sys
 
@@ -19,23 +19,27 @@ def main():
 
         while True:
             login_window = LoginWindow()
-            login_window.root.mainloop()
+            user = login_window.run()
 
-            user = login_window.current_user
             if user:
-                root = tk.Tk()
-                _ = MainWindow(root, user)
-                root.mainloop()
+                # Tampilkan pesan selamat datang
+                messagebox.showinfo(
+                    title="Success", message=f"Welcome, {user.full_name}!"
+                )
 
-                if not hasattr(root, "logout_requested"):
+                # Buat dan jalankan main window
+                app = MainWindow(user=user)
+                app.run()
+
+                if not hasattr(app.root, "logout_requested"):
                     break
             else:
                 break
 
     except Exception as e:
-        tk.messagebox.showerror(
-            "Database Error",
-            f"Failed to connect to database: {str(e)}\n\n"
+        messagebox.showerror(
+            title="Database Error",
+            message=f"Failed to connect to database: {str(e)}\n\n"
             "Please check your connection settings in .env file.",
         )
     finally:

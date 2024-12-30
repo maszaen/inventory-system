@@ -1,54 +1,120 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import customtkinter as ctk
+from tkinter import messagebox
 from decimal import Decimal
 from src.models.product import Product
-from src.utils.logger import Logger
 
 
-class ProductDialog:
-    def __init__(self, parent, product_manager, logger: Logger, product=None):
-        self.dialog = tk.Toplevel(parent)
+class ProductDialog(ctk.CTkToplevel):
+    def __init__(self, parent, product_manager, logger, product=None):
+        super().__init__(parent)
         self.product_manager = product_manager
         self.logger = logger
         self.product = product
-        self.setup_dialog()
+        self.title("Edit Product" if product else "Add New Product")
+        self.setup_window()
 
-    def setup_dialog(self):
-        self.dialog.geometry("300x235")
-        self.dialog.transient(self.dialog.master)
-        self.dialog.grab_set()
+    def setup_window(self):
+        window_width = 400
+        window_height = 520
 
         # Center dialog
-        x = (self.dialog.master.winfo_screenwidth() - 300) // 2
-        y = (self.dialog.master.winfo_screenheight() - 235) // 2
-        self.dialog.geometry(f"+{x}+{y}")
+        x = (self.master.winfo_screenwidth() - window_width) // 2
+        y = (self.master.winfo_screenheight() - window_height) // 2
+        self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-        title = "Edit Product" if self.product else "Add New Product"
-        self.dialog.title(title)
+        # Main container
+        container = ctk.CTkFrame(self)
+        container.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # Name field
-        ttk.Label(self.dialog, text="Name:", width=32).pack()
-        self.name_entry = ttk.Entry(self.dialog, width=32)
+        # Title
+        ctk.CTkLabel(
+            container, text=self.title(), font=ctk.CTkFont(size=20, weight="bold")
+        ).pack(pady=(0, 20))
+
+        # Form fields
+        # Product Name
+        name_frame = ctk.CTkFrame(container)
+        name_frame.pack(fill="x", pady=10)
+
+        ctk.CTkLabel(
+            name_frame, text="Product Name:", font=ctk.CTkFont(weight="bold")
+        ).pack(anchor="w")
+
+        self.name_entry = ctk.CTkEntry(name_frame, height=32)
+        self.name_entry.pack(fill="x")
         if self.product:
             self.name_entry.insert(0, self.product.name)
-        self.name_entry.pack(pady=(0, 7))
 
-        # Price field
-        ttk.Label(self.dialog, text="Price:", width=32).pack()
-        self.price_entry = ttk.Entry(self.dialog, width=32)
+        # Price
+        price_frame = ctk.CTkFrame(container)
+        price_frame.pack(fill="x", pady=10)
+
+        ctk.CTkLabel(price_frame, text="Price:", font=ctk.CTkFont(weight="bold")).pack(
+            anchor="w"
+        )
+
+        self.price_entry = ctk.CTkEntry(price_frame, height=32)
+        self.price_entry.pack(fill="x")
         if self.product:
             self.price_entry.insert(0, str(self.product.price))
-        self.price_entry.pack(pady=(0, 7))
 
-        # Stock field
-        ttk.Label(self.dialog, text="Stock:", width=32).pack()
-        self.stock_entry = ttk.Entry(self.dialog, width=32)
+        # Stock
+        stock_frame = ctk.CTkFrame(container)
+        stock_frame.pack(fill="x", pady=10)
+
+        ctk.CTkLabel(stock_frame, text="Stock:", font=ctk.CTkFont(weight="bold")).pack(
+            anchor="w"
+        )
+
+        self.stock_entry = ctk.CTkEntry(stock_frame, height=32)
+        self.stock_entry.pack(fill="x")
         if self.product:
             self.stock_entry.insert(0, str(self.product.stock))
-        self.stock_entry.pack(pady=(0, 7))
 
-        # Save button
-        ttk.Button(self.dialog, text="Save", command=self.save_product).pack(pady=20)
+        # Category (Optional)
+        category_frame = ctk.CTkFrame(container)
+        category_frame.pack(fill="x", pady=10)
+
+        ctk.CTkLabel(
+            category_frame, text="Category:", font=ctk.CTkFont(weight="bold")
+        ).pack(anchor="w")
+
+        self.category_var = ctk.StringVar(value="General")
+        category_combo = ctk.CTkComboBox(
+            category_frame,
+            values=["General", "Electronics", "Food", "Beverage", "Other"],
+            variable=self.category_var,
+            height=32,
+        )
+        category_combo.pack(fill="x")
+
+        # Description (Optional)
+        desc_frame = ctk.CTkFrame(container)
+        desc_frame.pack(fill="x", pady=10)
+
+        ctk.CTkLabel(
+            desc_frame, text="Description:", font=ctk.CTkFont(weight="bold")
+        ).pack(anchor="w")
+
+        self.description = ctk.CTkTextbox(desc_frame, height=100)
+        self.description.pack(fill="x")
+
+        # Buttons
+        button_frame = ctk.CTkFrame(container)
+        button_frame.pack(fill="x", pady=(20, 0))
+
+        ctk.CTkButton(
+            button_frame, text="Save", command=self.save_product, height=32
+        ).pack(side="right", padx=5)
+
+        ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            command=self.destroy,
+            height=32,
+            fg_color="transparent",
+            border_width=1,
+        ).pack(side="right", padx=5)
 
     def save_product(self):
         try:
@@ -90,7 +156,7 @@ class ProductDialog:
                 else:
                     raise ValueError("Failed to create product")
 
-            self.dialog.destroy()
+            self.destroy()
 
         except ValueError as e:
             messagebox.showerror("Error", str(e))

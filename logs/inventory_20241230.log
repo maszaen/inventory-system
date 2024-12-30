@@ -222,3 +222,9 @@ Total: 6999998
 Product: Infinix Zero 30
 Quantity: 3
 Total: 10499997
+[2024-12-30 23:01:48] Created new product: Samsung S24 Ultra (ID: 6772c3ec9a78f316b7537249, Price: 19000000, Stock: 20)
+[2024-12-30 23:02:46] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 2
+  Total: 38000000
+  Stock: 20 → 18
