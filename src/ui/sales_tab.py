@@ -146,6 +146,7 @@ class SalesTab(ttk.Frame):
                 self.transaction_manager,
                 self.logger,
                 transaction,
+                refresh_callback=self.refresh_callback,
             )
             self.wait_window(dialog.dialog)
             self.refresh_sales_list()
@@ -178,6 +179,8 @@ class SalesTab(ttk.Frame):
                         f"Quantity: {transaction.quantity}\n"
                         f"Total: {transaction.total}"
                     )
+                    if self.refresh_callback:
+                        self.refresh_callback()
                     self.refresh_sales_list()
                     messagebox.showinfo("Success", "Sale deleted successfully!")
                 else:

@@ -10,7 +10,6 @@ from src.ui.login_window import LoginWindow
 
 
 def main():
-    # Create necessary directories
     if not os.path.exists(Config.LOG_DIR):
         os.makedirs(Config.LOG_DIR)
 
