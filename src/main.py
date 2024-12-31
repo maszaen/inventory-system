@@ -33,11 +33,7 @@ def main():
                 break
 
     except Exception as e:
-        tk.messagebox.showerror(
-            "Database Error",
-            f"Failed to connect to database: {str(e)}\n\n"
-            "Please check your connection settings in .env file.",
-        )
+        tk.messagebox.showerror("Error", f"Error: {str(e)}\n\n")
     finally:
         DatabaseConnection.get_instance().close()
 
