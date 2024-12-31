@@ -41,7 +41,7 @@ class SalesTab(ttk.Frame):
             command=self.delete_selected_sale,
             state="disabled",
         )
-        self.delete_button.pack(side="right", padx=5)
+        self.delete_button.pack(side="right", padx=(5, 11))
 
         self.edit_button = ttk.Button(
             control_frame,
@@ -53,7 +53,7 @@ class SalesTab(ttk.Frame):
 
         # Sales TreeView
         tree_frame = ttk.Frame(self)
-        tree_frame.pack(fill="both", expand=True, padx=5)
+        tree_frame.pack(fill="both", expand=True, padx=(11, 0), pady=(0, 5))
 
         self.tree = ttk.Treeview(
             tree_frame,
