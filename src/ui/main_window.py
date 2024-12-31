@@ -5,9 +5,18 @@ from src.config import Config
 from src.utils.logger import Logger
 from src.models.product import ProductManager
 from src.models.transaction import TransactionManager
-from src.ui.product_tab import ProductTab
-from src.ui.sales_tab import SalesTab
-from src.ui.summary_tab import SummaryTab
+from src.ui.tabs.product_tab import ProductTab
+from src.ui.tabs.sales_tab import SalesTab
+from src.ui.tabs.summary_tab import SummaryTab
+from src.style_config import (
+    MENU_STYLE,
+    SUBMENU_STYLE,
+    TREEVIEW_STYLE,
+    TREEVIEW_HEADING_STYLE,
+    BUTTON_STYLE,
+    LABEL_STYLE,
+    FRAME_STYLE,
+)
 
 
 class MainWindow:
@@ -20,6 +29,7 @@ class MainWindow:
 
         self.setup_window()
         self.setup_style()
+        self.setup_sidebar()
         self.setup_notebook()
         self.refresh_all()
 
@@ -33,22 +43,22 @@ class MainWindow:
         y = (self.root.winfo_screenheight() - Config.WINDOW_HEIGHT) // 2
         self.root.geometry(f"+{x}+{y}")
 
-        self.setup_menu()
+    #     self.setup_menu()
 
-    def setup_menu(self):
-        menubar = tk.Menu(self.root)
-        self.root.config(menu=menubar)
+    # def setup_menu(self):
+    #     menubar = tk.Menu(self.root)
+    #     self.root.config(menu=menubar)
 
-        # User menu
-        user_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="User", menu=user_menu)
+    #     # User menu
+    #     user_menu = tk.Menu(menubar, tearoff=0)
+    #     menubar.add_cascade(label="User", menu=user_menu)
 
-        # Add user-related menu items
-        user_menu.add_command(
-            label=f"Logged in as: {self.user.full_name if self.user else 'Guest'}"
-        )
-        user_menu.add_separator()
-        user_menu.add_command(label="Logout", command=self.logout)
+    #     # Add user-related menu items
+    #     user_menu.add_command(
+    #         label=f"Logged in as: {self.user.full_name if self.user else 'Guest'}"
+    #     )
+    #     user_menu.add_separator()
+    #     user_menu.add_command(label="Logout", command=self.logout)
 
     def logout(self):
         if messagebox.askyesno("Logout", "Are you sure you want to logout?"):
@@ -79,6 +89,23 @@ class MainWindow:
             font=("Arial", 10),
             padding=1,
         )
+
+    def setup_sidebar(self):
+        self.sidebar = ttk.Frame(self.root, width=250, padding=(20, 0), relief="flat")
+        self.sidebar.pack(side="left", fill="y")
+
+        # Add sidebar content
+        ttk.Label(self.sidebar, text="Sidebar", style="TLabel").pack(pady=10)
+        ttk.Button(self.sidebar, text="Button 1", style="TButton").pack(pady=5)
+        ttk.Button(self.sidebar, text="Button 2", style="TButton").pack(pady=5)
+
+    def setup_style(self):
+        style = ttk.Style()
+        style.configure("Custom.Treeview.Heading", **TREEVIEW_HEADING_STYLE)
+        style.configure("Custom.Treeview", **TREEVIEW_STYLE)
+        style.configure("TFrame", **FRAME_STYLE)
+        style.configure("TButton", **BUTTON_STYLE)
+        style.configure("TLabel", **LABEL_STYLE)
 
     def setup_notebook(self):
         self.notebook = ttk.Notebook(self.root)
