@@ -1,63 +1,69 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from tkcalendar import DateEntry
-from datetime import datetime
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QTextEdit,
+    QDateEdit,
+    QHBoxLayout,
+    QMessageBox,
+)
+from PySide6.QtCore import QDate
 from decimal import Decimal
 
 
-class SummaryTab(ttk.Frame):
+class SummaryTab(QWidget):
     def __init__(self, parent, transaction_manager):
         super().__init__(parent)
         self.transaction_manager = transaction_manager
         self.setup_ui()
 
     def setup_ui(self):
-        # Date selection frame
-        date_frame = ttk.Frame(self)
-        date_frame.pack(fill="x", padx=5, pady=5)
+        layout = QVBoxLayout(self)
 
-        ttk.Label(date_frame, text="Start Date:").pack(side="left", padx=5)
-        self.start_date = DateEntry(
-            date_frame,
-            width=12,
-            background="darkblue",
-            foreground="white",
-            borderwidth=2,
-        )
-        self.start_date.pack(side="left", padx=5)
+        # Date selection layout
+        date_layout = QHBoxLayout()
+        layout.addLayout(date_layout)
 
-        ttk.Label(date_frame, text="End Date:").pack(side="left", padx=5)
-        self.end_date = DateEntry(
-            date_frame,
-            width=12,
-            background="darkblue",
-            foreground="white",
-            borderwidth=2,
-        )
-        self.end_date.pack(side="left", padx=5)
+        # Start Date
+        date_layout.addWidget(QLabel("Start Date:"))
+        self.start_date = QDateEdit(self)
+        self.start_date.setCalendarPopup(True)
+        self.start_date.setDate(QDate.currentDate())
+        date_layout.addWidget(self.start_date)
 
-        ttk.Button(
-            date_frame, text="Generate Summary", command=self.generate_summary
-        ).pack(side="left", padx=5)
+        # End Date
+        date_layout.addWidget(QLabel("End Date:"))
+        self.end_date = QDateEdit(self)
+        self.end_date.setCalendarPopup(True)
+        self.end_date.setDate(QDate.currentDate())
+        date_layout.addWidget(self.end_date)
 
-        # Summary text area
-        self.summary_text = tk.Text(self, height=20, width=60)
-        self.summary_text.pack(padx=5, pady=5, fill="both", expand=True)
+        # Generate Summary Button
+        self.generate_button = QPushButton("Generate Summary", self)
+        self.generate_button.clicked.connect(self.generate_summary)
+        layout.addWidget(self.generate_button)
+
+        # Summary Text Area
+        self.summary_text = QTextEdit(self)
+        self.summary_text.setReadOnly(True)
+        layout.addWidget(self.summary_text)
 
     def generate_summary(self):
         try:
-            start_date = self.start_date.get_date()
-            end_date = self.end_date.get_date()
+            start_date = self.start_date.date().toPyDate()
+            end_date = self.end_date.date().toPyDate()
 
             if start_date > end_date:
                 raise ValueError("Start date cannot be after end date")
 
-            # Dapatkan transaksi dalam range tanggal
+            # Get transactions in the date range
             transactions = self.transaction_manager.get_transactions_by_date_range(
                 start_date, end_date
             )
 
-            # Hitung total dan ringkasan per produk
+            # Calculate total and summary per product
             total_amount = Decimal("0")
             product_summary = {}
 
@@ -93,10 +99,9 @@ class SummaryTab(ttk.Frame):
                 summary += "No transactions found in this date range."
 
             # Update text widget
-            self.summary_text.delete(1.0, tk.END)
-            self.summary_text.insert(1.0, summary)
+            self.summary_text.setPlainText(summary)
 
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            QMessageBox.critical(self, "Error", str(e))
         except Exception as e:
-            messagebox.showerror("Error", f"An error occurred: {str(e)}")
+            QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")

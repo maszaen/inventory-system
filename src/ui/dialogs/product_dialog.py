@@ -1,60 +1,72 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+from PySide6.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QMessageBox,
+)
+from PySide6.QtCore import Qt
 from decimal import Decimal
 from src.models.product import Product
 from src.utils.logger import Logger
 
 
-class ProductDialog:
+class ProductDialog(QDialog):
     def __init__(self, parent, product_manager, logger: Logger, product=None):
-        self.dialog = tk.Toplevel(parent)
+        super().__init__(parent)
         self.product_manager = product_manager
         self.logger = logger
         self.product = product
         self.setup_dialog()
 
     def setup_dialog(self):
-        self.dialog.geometry("300x235")
-        self.dialog.transient(self.dialog.master)
-        self.dialog.grab_set()
+        self.setWindowTitle("Edit Product" if self.product else "Add New Product")
+        self.setGeometry(0, 0, 300, 235)
+        self.setWindowModality(Qt.ApplicationModal)
 
-        # Center dialog
-        x = (self.dialog.master.winfo_screenwidth() - 300) // 2
-        y = (self.dialog.master.winfo_screenheight() - 235) // 2
-        self.dialog.geometry(f"+{x}+{y}")
-
-        title = "Edit Product" if self.product else "Add New Product"
-        self.dialog.title(title)
+        layout = QVBoxLayout()
 
         # Name field
-        ttk.Label(self.dialog, text="Name:", width=32).pack()
-        self.name_entry = ttk.Entry(self.dialog, width=32)
+        layout.addWidget(QLabel("Name:"))
+        self.name_entry = QLineEdit()
         if self.product:
-            self.name_entry.insert(0, self.product.name)
-        self.name_entry.pack(pady=(0, 7))
+            self.name_entry.setText(self.product.name)
+        layout.addWidget(self.name_entry)
 
         # Price field
-        ttk.Label(self.dialog, text="Price:", width=32).pack()
-        self.price_entry = ttk.Entry(self.dialog, width=32)
+        layout.addWidget(QLabel("Price:"))
+        self.price_entry = QLineEdit()
         if self.product:
-            self.price_entry.insert(0, str(self.product.price))
-        self.price_entry.pack(pady=(0, 7))
+            self.price_entry.setText(str(self.product.price))
+        layout.addWidget(self.price_entry)
 
         # Stock field
-        ttk.Label(self.dialog, text="Stock:", width=32).pack()
-        self.stock_entry = ttk.Entry(self.dialog, width=32)
+        layout.addWidget(QLabel("Stock:"))
+        self.stock_entry = QLineEdit()
         if self.product:
-            self.stock_entry.insert(0, str(self.product.stock))
-        self.stock_entry.pack(pady=(0, 7))
+            self.stock_entry.setText(str(self.product.stock))
+        layout.addWidget(self.stock_entry)
 
         # Save button
-        ttk.Button(self.dialog, text="Save", command=self.save_product).pack(pady=20)
+        save_button = QPushButton("Save")
+        save_button.clicked.connect(self.save_product)
+        layout.addWidget(save_button)
+
+        self.setLayout(layout)
+        self.center_dialog()
+
+    def center_dialog(self):
+        screen = self.screen().geometry()
+        x = (screen.width() - self.width()) // 2
+        y = (screen.height() - self.height()) // 2
+        self.move(x, y)
 
     def save_product(self):
         try:
-            name = self.name_entry.get().strip()
-            price = Decimal(self.price_entry.get())
-            stock = int(self.stock_entry.get())
+            name = self.name_entry.text().strip()
+            price = Decimal(self.price_entry.text())
+            stock = int(self.stock_entry.text())
 
             if not name:
                 raise ValueError("Product name is required!")
@@ -74,7 +86,9 @@ class ProductDialog:
                         f"(ID: {self.product._id}, "
                         f"Price: {price}, Stock: {stock})"
                     )
-                    messagebox.showinfo("Success", "Product updated successfully!")
+                    QMessageBox.information(
+                        self, "Success", "Product updated successfully!"
+                    )
                 else:
                     raise ValueError("Failed to update product")
             else:
@@ -86,11 +100,13 @@ class ProductDialog:
                         f"(ID: {new_product._id}, "
                         f"Price: {price}, Stock: {stock})"
                     )
-                    messagebox.showinfo("Success", "Product created successfully!")
+                    QMessageBox.information(
+                        self, "Success", "Product created successfully!"
+                    )
                 else:
                     raise ValueError("Failed to create product")
 
-            self.dialog.destroy()
+            self.accept()
 
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            QMessageBox.critical(self, "Error", str(e))
