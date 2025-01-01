@@ -1,6 +1,17 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+from PySide6.QtWidgets import (
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QPushButton,
+    QTabWidget,
+    QHBoxLayout,
+    QFrame,
+    QGroupBox,
+    QGridLayout,
+    QVBoxLayout,
+    QMessageBox,
+)
 from src.config import Config
 from src.utils.logger import Logger
 from src.models.product import ProductManager
@@ -8,127 +19,113 @@ from src.models.transaction import TransactionManager
 from src.ui.tabs.product_tab import ProductTab
 from src.ui.tabs.sales_tab import SalesTab
 from src.ui.tabs.summary_tab import SummaryTab
-from src.style_config import (
-    MENU_STYLE,
-    SUBMENU_STYLE,
-    TREEVIEW_STYLE,
-    TREEVIEW_HEADING_STYLE,
-    BUTTON_STYLE,
-    LABEL_STYLE,
-    FRAME_STYLE,
-)
+from src.utils.calculate_totals import calculate_totals
+
+from PySide6.QtGui import QGuiApplication
 
 
-class MainWindow:
-    def __init__(self, root: tk.Tk, user=None):
-        self.root = root
+class MainWindow(QMainWindow):
+    def __init__(self, user=None):
+        super().__init__()
         self.user = user
         self.logger = Logger()
         self.product_manager = ProductManager()
         self.transaction_manager = TransactionManager()
 
-        self.setup_window()
-        self.setup_style()
+        self.setWindowTitle(Config.APP_TITLE)
+        self.setGeometry(100, 100, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT)
+        self.center_window()
+
+        self.main_layout = QHBoxLayout()
+        self.main_widget = QWidget()
+        self.main_widget.setLayout(self.main_layout)
+        self.setCentralWidget(self.main_widget)
+
         self.setup_sidebar()
         self.setup_notebook()
         self.refresh_all()
 
         if self.user:
-            self.root.title(f"{Config.APP_TITLE} - {self.user.full_name}")
+            self.setWindowTitle(f"{Config.APP_TITLE} - {self.user.full_name}")
 
-    def setup_window(self):
-        self.root.title(Config.APP_TITLE)
-        self.root.geometry(f"{Config.WINDOW_WIDTH}x{Config.WINDOW_HEIGHT}")
-        x = (self.root.winfo_screenwidth() - Config.WINDOW_WIDTH) // 2
-        y = (self.root.winfo_screenheight() - Config.WINDOW_HEIGHT) // 2
-        self.root.geometry(f"+{x}+{y}")
-
-    #     self.setup_menu()
-
-    # def setup_menu(self):
-    #     menubar = tk.Menu(self.root)
-    #     self.root.config(menu=menubar)
-
-    #     # User menu
-    #     user_menu = tk.Menu(menubar, tearoff=0)
-    #     menubar.add_cascade(label="User", menu=user_menu)
-
-    #     # Add user-related menu items
-    #     user_menu.add_command(
-    #         label=f"Logged in as: {self.user.full_name if self.user else 'Guest'}"
-    #     )
-    #     user_menu.add_separator()
-    #     user_menu.add_command(label="Logout", command=self.logout)
-
-    def logout(self):
-        if messagebox.askyesno("Logout", "Are you sure you want to logout?"):
-            self.root.quit()
-
-    def setup_style(self):
-        style = ttk.Style()
-        style.configure(
-            "Custom.Treeview.Heading",
-            font=("Arial", 10, "bold"),
-        )
-        style.configure(
-            "Custom.Treeview",
-            font=("Arial", 11),
-            rowheight=25,
-            padding=(10, 0),
-        )
-        style.configure("TFrame", background="whitesmoke")
-        style.configure(
-            "TButton",
-            background="whitesmoke",
-            font=("Arial", 10),
-            padding=1,
-        )
-        style.configure(
-            "TLabel",
-            background="whitesmoke",
-            font=("Arial", 10),
-            padding=1,
-        )
+    def center_window(self):
+        screen = QGuiApplication.primaryScreen()
+        if screen is not None:
+            screen_geometry = screen.availableGeometry()
+            center = screen_geometry.center()
+            frame_geometry = self.frameGeometry()
+            frame_geometry.moveCenter(center)
+            self.move(frame_geometry.topLeft())
 
     def setup_sidebar(self):
-        self.sidebar = ttk.Frame(self.root, width=250, padding=(20, 0), relief="flat")
-        self.sidebar.pack(side="left", fill="y")
+        sidebar_widget = QWidget(self)
+        sidebar_layout = QVBoxLayout(sidebar_widget)
 
-        # Add sidebar content
-        ttk.Label(self.sidebar, text="Sidebar", style="TLabel").pack(pady=10)
-        ttk.Button(self.sidebar, text="Button 1", style="TButton").pack(pady=5)
-        ttk.Button(self.sidebar, text="Button 2", style="TButton").pack(pady=5)
+        sidebar_widget.setFixedWidth(300)
+        sidebar_layout.setContentsMargins(10, 10, 10, 10)
 
-    def setup_style(self):
-        style = ttk.Style()
-        style.configure("Custom.Treeview.Heading", **TREEVIEW_HEADING_STYLE)
-        style.configure("Custom.Treeview", **TREEVIEW_STYLE)
-        style.configure("TFrame", **FRAME_STYLE)
-        style.configure("TButton", **BUTTON_STYLE)
-        style.configure("TLabel", **LABEL_STYLE)
+        # Label for sidebar title
+        sidebar_title_label = QLabel("Sales Summary", self)
+        sidebar_layout.addWidget(sidebar_title_label)
+
+        # Add sales information
+        self.totalSales = QLabel("Loading...", self)
+        self.totalThisMonth = QLabel("Loading...", self)
+        self.totalToday = QLabel("Loading...", self)
+
+        self.refresh_sidebar_totals()
+
+        sidebar_layout.addWidget(QLabel("Total sales: ", self))
+        sidebar_layout.addWidget(self.totalSales)
+        sidebar_layout.addWidget(QLabel("Sales this month: ", self))
+        sidebar_layout.addWidget(self.totalThisMonth)
+        sidebar_layout.addWidget(QLabel("Sales today: ", self))
+        sidebar_layout.addWidget(self.totalToday)
+
+        # Add sidebar to the right of the main window
+        self.main_layout.addWidget(sidebar_widget)
+
+    def refresh_sidebar_totals(self):
+        transactions = self.transaction_manager.get_all_transactions()
+        total_all_sales, total_this_month, total_today = calculate_totals(transactions)
+
+        self.totalSales.setText(f"Rp{total_all_sales:,.2f}")
+        self.totalThisMonth.setText(f"Rp{total_this_month:,.2f}")
+        self.totalToday.setText(f"Rp{total_today:,.2f}")
 
     def setup_notebook(self):
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(expand=True, fill="both", padx=10, pady=5)
+        notebook = QTabWidget(self)
+        self.main_layout.addWidget(notebook)
 
         # Initialize tabs
-        self.product_tab = ProductTab(self.notebook, self.product_manager, self.logger)
+        self.product_tab = ProductTab(self, self.product_manager, self.logger)
         self.sales_tab = SalesTab(
-            self.notebook,
+            self,
             self.product_manager,
             self.transaction_manager,
             self.logger,
             refresh_callback=self.refresh_all,
         )
-        self.summary_tab = SummaryTab(self.notebook, self.transaction_manager)
+        self.summary_tab = SummaryTab(self, self.transaction_manager)
 
-        # Add tabs to notebook
-        self.notebook.add(self.product_tab, text="Products")
-        self.notebook.add(self.sales_tab, text="Sales")
-        self.notebook.add(self.summary_tab, text="Summary")
+        # Add tabs to the notebook
+        notebook.addTab(self.product_tab, "Products")
+        notebook.addTab(self.sales_tab, "Sales")
+        notebook.addTab(self.summary_tab, "Summary")
 
     def refresh_all(self):
         if hasattr(self, "product_tab"):
             self.product_tab.refresh_product_list()
         if hasattr(self, "sales_tab"):
             self.sales_tab.refresh_sales_list()
+
+    def logout(self):
+        reply = QMessageBox.question(
+            self,
+            "Logout",
+            "Are you sure you want to logout?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply == QMessageBox.Yes:
+            self.close()

@@ -1,8 +1,19 @@
-import tkinter as tk
 import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QMessageBox,
+    QWidget,
+)
 from src.ui.main_window import MainWindow
 from src.config import Config
 from src.database.connection import DatabaseConnection
@@ -10,6 +21,9 @@ from src.ui.login_window import LoginWindow
 
 
 def main():
+    # Create QApplication instance first
+    app = QApplication(sys.argv)
+
     if not os.path.exists(Config.LOG_DIR):
         os.makedirs(Config.LOG_DIR)
 
@@ -19,21 +33,21 @@ def main():
 
         while True:
             login_window = LoginWindow()
-            login_window.root.mainloop()
+            user = login_window.run()
 
-            user = login_window.current_user
             if user:
-                root = tk.Tk()
-                _ = MainWindow(root, user)
-                root.mainloop()
+                # Pass the app instance to MainWindow and show it
+                main_window = MainWindow(user)
+                main_window.show()
+                app.exec()  # Start the application loop
 
-                if not hasattr(root, "logout_requested"):
+                if not hasattr(main_window, "logout_requested"):
                     break
             else:
                 break
 
     except Exception as e:
-        tk.messagebox.showerror("Error", f"Error: {str(e)}\n\n")
+        QMessageBox.critical(None, "Error", f"Error: {str(e)}\n\n")
     finally:
         DatabaseConnection.get_instance().close()
 

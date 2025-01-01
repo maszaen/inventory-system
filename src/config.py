@@ -15,4 +15,4 @@ class Config:
 
     # MongoDB Configuration
     MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-    DB_NAME = os.getenv("DB_NAME", "inventory_system")
+    DB_NAME = os.getenv("DB_NAME", "InventoryDB")

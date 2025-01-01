@@ -1,13 +1,19 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from tkcalendar import DateEntry
-from decimal import Decimal
-from datetime import datetime
+from PySide6.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QComboBox,
+    QLineEdit,
+    QPushButton,
+    QMessageBox,
+    QDateEdit,
+)
+from PySide6.QtCore import Qt, QDate
 from src.models.transaction import Transaction
 from src.utils.logger import Logger
 
 
-class SaleDialog:
+class SaleDialog(QDialog):
     def __init__(
         self,
         parent,
@@ -17,7 +23,7 @@ class SaleDialog:
         transaction=None,
         refresh_callback=None,
     ):
-        self.dialog = tk.Toplevel(parent)
+        super().__init__(parent)
         self.product_manager = product_manager
         self.transaction_manager = transaction_manager
         self.logger = logger
@@ -26,59 +32,59 @@ class SaleDialog:
         self.setup_dialog()
 
     def setup_dialog(self):
-        self.dialog.geometry("300x235")
-        self.dialog.transient(self.dialog.master)
-        self.dialog.grab_set()
+        self.setWindowTitle("Edit Sale" if self.transaction else "Add New Sale")
+        self.setGeometry(100, 100, 300, 235)
+        self.setWindowModality(Qt.ApplicationModal)
 
-        # Center dialog
-        x = (self.dialog.master.winfo_screenwidth() - 300) // 2
-        y = (self.dialog.master.winfo_screenheight() - 235) // 2
-        self.dialog.geometry(f"+{x}+{y}")
-
-        title = "Edit Sale" if self.transaction else "Add New Sale"
-        self.dialog.title(title)
+        layout = QVBoxLayout()
 
         # Date field
-        ttk.Label(self.dialog, text="Date:", width=32).pack()
-        self.date_picker = DateEntry(
-            self.dialog,
-            width=30,
-            background="darkblue",
-            foreground="white",
-            borderwidth=2,
-        )
+        layout.addWidget(QLabel("Date:"))
+        self.date_picker = QDateEdit(self)
+        self.date_picker.setCalendarPopup(True)
         if self.transaction:
-            self.date_picker.set_date(self.transaction.date)
-        self.date_picker.pack(pady=(0, 7))
+            self.date_picker.setDate(
+                QDate.fromString(self.transaction.date, "yyyy-MM-dd")
+            )
+        layout.addWidget(self.date_picker)
 
         # Product field
-        ttk.Label(self.dialog, text="Product:", width=32).pack()
+        layout.addWidget(QLabel("Product:"))
         self.products = self.product_manager.get_all_products()
         product_names = [p.name for p in self.products]
 
-        self.product_var = tk.StringVar()
-        self.product_combo = ttk.Combobox(
-            self.dialog, textvariable=self.product_var, width=30, values=product_names
-        )
+        self.product_combo = QComboBox(self)
+        self.product_combo.addItems(product_names)
         if self.transaction:
-            self.product_combo.set(self.transaction.product_name)
-        self.product_combo.pack(pady=(0, 7))
+            self.product_combo.setCurrentText(self.transaction.product_name)
+        layout.addWidget(self.product_combo)
 
         # Quantity field
-        ttk.Label(self.dialog, text="Quantity:", width=32).pack()
-        self.quantity_entry = ttk.Entry(self.dialog, width=32)
+        layout.addWidget(QLabel("Quantity:"))
+        self.quantity_entry = QLineEdit(self)
         if self.transaction:
-            self.quantity_entry.insert(0, str(self.transaction.quantity))
-        self.quantity_entry.pack(pady=(0, 7))
+            self.quantity_entry.setText(str(self.transaction.quantity))
+        layout.addWidget(self.quantity_entry)
 
         # Save button
-        ttk.Button(self.dialog, text="Save", command=self.save_sale).pack(pady=20)
+        save_button = QPushButton("Save", self)
+        save_button.clicked.connect(self.save_sale)
+        layout.addWidget(save_button)
+
+        self.setLayout(layout)
+        self.center_dialog()
+
+    def center_dialog(self):
+        screen = self.screen().geometry()
+        x = (screen.width() - self.width()) // 2
+        y = (screen.height() - self.height()) // 2
+        self.move(x, y)
 
     def save_sale(self):
         try:
-            sale_date = self.date_picker.get_date()
-            product_name = self.product_var.get()
-            quantity = int(self.quantity_entry.get())
+            sale_date = self.date_picker.date().toString("yyyy-MM-dd")
+            product_name = self.product_combo.currentText()
+            quantity = int(self.quantity_entry.text())
 
             # Validate input
             if not product_name:
@@ -108,7 +114,6 @@ class SaleDialog:
                     if not self.product_manager.update_product(old_product):
                         raise ValueError("Failed to restore product stock")
 
-                # Validasi stok untuk transaksi baru
                 if quantity > selected_product.stock + self.transaction.quantity:
                     raise ValueError(
                         f"Insufficient stock!\n"
@@ -116,7 +121,6 @@ class SaleDialog:
                         f"Available: {selected_product.stock + self.transaction.quantity}"
                     )
 
-                # Perbarui transaksi dengan data baru
                 old_quantity = self.transaction.quantity
                 self.transaction.date = sale_date
                 self.transaction.product_id = selected_product._id
@@ -124,29 +128,22 @@ class SaleDialog:
                 self.transaction.quantity = quantity
                 self.transaction.total = total
 
-                # Perbarui stok produk
-                selected_product.stock += old_quantity  # Pulihkan stok lama
-                selected_product.stock -= quantity  # Kurangi stok dengan kuantitas baru
+                selected_product.stock += old_quantity
+                selected_product.stock -= quantity
 
-                # Simpan transaksi dan perbarui stok produk
                 if not self.transaction_manager.update_transaction(self.transaction):
-                    # Rollback jika pembaruan transaksi gagal
-                    selected_product.stock += quantity  # Pulihkan stok baru
-                    selected_product.stock -= old_quantity  # Kembalikan stok lama
+                    selected_product.stock += quantity
+                    selected_product.stock -= old_quantity
                     self.product_manager.update_product(selected_product)
                     raise ValueError("Failed to update transaction")
 
                 if not self.product_manager.update_product(selected_product):
-                    # Rollback jika pembaruan stok gagal
-                    selected_product.stock += quantity  # Pulihkan stok baru
-                    selected_product.stock -= old_quantity  # Kembalikan stok lama
-                    self.transaction.quantity = (
-                        old_quantity  # Kembalikan transaksi lama
-                    )
+                    selected_product.stock += quantity
+                    selected_product.stock -= old_quantity
+                    self.transaction.quantity = old_quantity
                     self.transaction_manager.update_transaction(self.transaction)
                     raise ValueError("Failed to update product stock")
 
-                # Log perubahan berhasil
                 self.logger.log_action(
                     f"Sale updated:\n"
                     f"  Transaction ID: {self.transaction._id}\n"
@@ -157,7 +154,6 @@ class SaleDialog:
                 )
 
             else:
-                # Check stock availability for new transaction
                 if quantity > selected_product.stock:
                     raise ValueError(
                         f"Insufficient stock!\n"
@@ -165,7 +161,6 @@ class SaleDialog:
                         f"Available: {selected_product.stock}"
                     )
 
-                # Create and save new transaction
                 transaction = Transaction(
                     product_id=selected_product._id,
                     product_name=product_name,
@@ -174,19 +169,15 @@ class SaleDialog:
                     date=sale_date,
                 )
 
-                # Save transaction
                 if not self.transaction_manager.create_transaction(transaction):
                     raise ValueError("Failed to create transaction")
 
-                # Update stock
                 old_stock = selected_product.stock
                 selected_product.stock -= quantity
                 if not self.product_manager.update_product(selected_product):
-                    # Rollback: delete the transaction if stock update fails
                     self.transaction_manager.delete_transaction(transaction._id)
                     raise ValueError("Failed to update product stock")
 
-                # Log the successful creation
                 self.logger.log_action(
                     f"New sale recorded:\n"
                     f"  Product: {product_name}\n"
@@ -198,7 +189,8 @@ class SaleDialog:
             if self.refresh_callback:
                 self.refresh_callback()
 
-            messagebox.showinfo(
+            QMessageBox.information(
+                self,
                 "Success",
                 f"{'Sale updated' if self.transaction else 'Sale recorded'} successfully!\n\n"
                 f"Product: {product_name}\n"
@@ -206,9 +198,9 @@ class SaleDialog:
                 f"Total: Rp{total:,.2f}",
             )
 
-            self.dialog.destroy()
+            self.accept()
 
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            QMessageBox.critical(self, "Error", str(e))
         except Exception as e:
-            messagebox.showerror("Error", f"An error occurred: {str(e)}")
+            QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
