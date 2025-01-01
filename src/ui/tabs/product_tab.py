@@ -16,6 +16,7 @@ from PySide6.QtCore import Qt, QPoint
 from bson import ObjectId
 from src.ui.dialogs.product_dialog import ProductDialog
 from src.ui.models.product_table_model import ProductTableModel
+from src.utils.pagination import PaginationWidget
 
 
 class ProductTab(QWidget):
@@ -23,6 +24,8 @@ class ProductTab(QWidget):
         super().__init__(parent)
         self.product_manager = product_manager
         self.logger = logger
+        self.cached_products = []
+        self.filtered_products = []
         self.setup_ui()
         self.refresh_product_list()
 
@@ -55,16 +58,44 @@ class ProductTab(QWidget):
         self.product_table.customContextMenuRequested.connect(self.show_context_menu)
         main_layout.addWidget(self.product_table)
 
+        self.pagination = PaginationWidget()
+        self.pagination.pageChanged.connect(self.on_page_changed)
+        main_layout.addWidget(self.pagination)
+
     def refresh_product_list(self):
         search_text = self.search_entry.text().strip().lower()
 
-        products = self.product_manager.get_all_products()
-        filtered_products = [
-            product for product in products if search_text in product.name.lower()
+        # Update cache jika belum ada
+        if not self.cached_products:
+            self.cached_products = self.product_manager.get_all_products()
+
+        # Filter dari cache
+        self.filtered_products = [
+            product
+            for product in self.cached_products
+            if search_text in product.name.lower()
         ]
 
-        self.model = ProductTableModel(filtered_products)
+        # Update pagination
+        self.pagination.set_total_items(len(self.filtered_products))
+
+        # Get page data
+        self.update_current_page()
+
+    def update_current_page(self):
+        # Calculate slice indices
+        start_idx = (self.pagination.current_page - 1) * self.pagination.items_per_page
+        end_idx = start_idx + self.pagination.items_per_page
+
+        # Get products for current page
+        page_products = self.filtered_products[start_idx:end_idx]
+
+        # Update model
+        self.model = ProductTableModel(page_products)
         self.product_table.setModel(self.model)
+
+    def on_page_changed(self, page, items_per_page):
+        self.update_current_page()
 
     def show_add_product_dialog(self):
         dialog = ProductDialog(self, self.product_manager, self.logger)
@@ -113,6 +144,23 @@ class ProductTab(QWidget):
         indexes = self.product_table.selectedIndexes()
         if indexes:
             menu = QMenu()
+            menu.setStyleSheet(
+                """
+                QMenu {
+                    background-color: #1e1e1e; 
+                    border: 1px solid #3c3c3c; 
+                    border-radius: 8px; 
+                    color: white; 
+                    font-size: 12px;
+                }
+                QMenu::item {
+                    padding: 5px 25px;
+                }
+                QMenu::item:selected {
+                    background-color: #3c3c3c;
+                }
+                """
+            )
 
             edit_action = QAction("Edit", self)
             delete_action = QAction("Delete", self)
@@ -126,9 +174,3 @@ class ProductTab(QWidget):
                 self.edit_selected_product()
             elif action == delete_action:
                 self.delete_selected_product()
-
-        # Align text to the left and set minimum width
-        self.search_label.setAlignment(Qt.AlignLeft)
-        self.search_label.setMinimumWidth(40)
-        self.search_entry.setAlignment(Qt.AlignLeft)
-        self.search_entry.setMinimumWidth(40)

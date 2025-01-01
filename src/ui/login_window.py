@@ -1,12 +1,10 @@
 from PySide6.QtWidgets import (
     QDialog,
     QVBoxLayout,
-    QLabel,
     QLineEdit,
     QPushButton,
     QMessageBox,
     QFormLayout,
-    QDialogButtonBox,
 )
 from src.models.user import UserManager
 
@@ -20,7 +18,7 @@ class LoginWindow(QDialog):
 
     def setup_window(self):
         self.setWindowTitle("Login - Inventory System")
-        self.setFixedSize(300, 245)
+        self.setFixedSize(300, 155)
 
         layout = QVBoxLayout()
 
@@ -59,17 +57,18 @@ class LoginWindow(QDialog):
             user = self.user_manager.authenticate(username, password)
             if user:
                 self.current_user = user
-                QMessageBox.information(self, "Success", f"Welcome, {user.full_name}!")
                 self.accept()
             else:
-                QMessageBox.critical(self, "Error", "Invalid username or password")
+                QMessageBox.critical(
+                    self, "Error", "Invalid username or password, please try again"
+                )
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
 
     def show_register_dialog(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Register New User")
-        dialog.setFixedSize(300, 335)
+        dialog.setFixedSize(300, 175)
 
         form_layout = QFormLayout(dialog)
 
@@ -82,7 +81,7 @@ class LoginWindow(QDialog):
 
         form_layout.addRow("Username:", self.username_entry_register)
         form_layout.addRow("Password:", self.password_entry_register)
-        form_layout.addRow("Confirm Password:", self.confirm_password_entry_register)
+        form_layout.addRow("Confirm:", self.confirm_password_entry_register)
         form_layout.addRow("Full Name:", self.fullname_entry_register)
 
         register_button = QPushButton("Register", dialog)
