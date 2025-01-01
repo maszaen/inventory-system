@@ -41,3 +41,7 @@ LABEL_STYLE = {
 FRAME_STYLE = {
     "background": "whitesmoke",
 }
+
+# 1e1e1e darker than 2d2d2d (base color)
+# 2d2d2d darker (layer 2nd color)
+# 3c3c3c lighter (border color)

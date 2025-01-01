@@ -2,7 +2,6 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLabel,
-    QLineEdit,
     QPushButton,
     QTextEdit,
     QDateEdit,
@@ -52,9 +51,9 @@ class SummaryTab(QWidget):
 
     def generate_summary(self):
         try:
-            start_date = self.start_date.date().toPyDate()
-            end_date = self.end_date.date().toPyDate()
-
+            start_date = self.start_date.date().toPython()
+            start_date = self.start_date.date().toPython()
+            end_date = self.end_date.date().toPython()
             if start_date > end_date:
                 raise ValueError("Start date cannot be after end date")
 

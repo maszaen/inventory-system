@@ -53,7 +53,7 @@ class SalesTab(QWidget):
         main_layout.addLayout(control_layout)
 
         # Add Sale Button
-        self.add_sale_button = QPushButton("Add Sale")
+        self.add_sale_button = QPushButton("+ Add")
         self.add_sale_button.clicked.connect(self.show_add_sale_dialog)
         control_layout.addWidget(self.add_sale_button)
 

@@ -1,4 +1,3 @@
-from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -6,18 +5,14 @@ from PySide6.QtWidgets import (
     QPushButton,
     QLineEdit,
     QLabel,
-    QTableWidget,
-    QTableWidgetItem,
     QHeaderView,
     QAbstractItemView,
-    QDialogButtonBox,
-    QDialog,
-    QTableWidgetItem,
-    QSpacerItem,
-    QSizePolicy,
     QMessageBox,
     QTableView,
+    QMenu,
 )
+from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QPoint
 from bson import ObjectId
 from src.ui.dialogs.product_dialog import ProductDialog
 from src.ui.models.product_table_model import ProductTableModel
@@ -39,7 +34,7 @@ class ProductTab(QWidget):
         main_layout.addLayout(control_layout)
 
         # Add Product Button
-        self.add_product_button = QPushButton("Add Product")
+        self.add_product_button = QPushButton("+ Add")
         self.add_product_button.clicked.connect(self.show_add_product_dialog)
         control_layout.addWidget(self.add_product_button)
 
@@ -51,22 +46,13 @@ class ProductTab(QWidget):
         self.search_entry.textChanged.connect(self.refresh_product_list)
         control_layout.addWidget(self.search_entry)
 
-        # Delete and Edit Buttons
-        self.delete_button = QPushButton("Delete")
-        self.delete_button.setEnabled(False)
-        self.delete_button.clicked.connect(self.delete_selected_product)
-        control_layout.addWidget(self.delete_button)
-
-        self.edit_button = QPushButton("Edit")
-        self.edit_button.setEnabled(False)
-        self.edit_button.clicked.connect(self.edit_selected_product)
-        control_layout.addWidget(self.edit_button)
-
         # Product Table
         self.product_table = QTableView()
         self.product_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.product_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.product_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.product_table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.product_table.customContextMenuRequested.connect(self.show_context_menu)
         main_layout.addWidget(self.product_table)
 
     def refresh_product_list(self):
@@ -122,3 +108,27 @@ class ProductTab(QWidget):
                     )
                 else:
                     QMessageBox.critical(self, "Error", "Failed to delete product")
+
+    def show_context_menu(self, position: QPoint):
+        indexes = self.product_table.selectedIndexes()
+        if indexes:
+            menu = QMenu()
+
+            edit_action = QAction("Edit", self)
+            delete_action = QAction("Delete", self)
+
+            menu.addAction(edit_action)
+            menu.addAction(delete_action)
+
+            action = menu.exec(self.product_table.viewport().mapToGlobal(position))
+
+            if action == edit_action:
+                self.edit_selected_product()
+            elif action == delete_action:
+                self.delete_selected_product()
+
+        # Align text to the left and set minimum width
+        self.search_label.setAlignment(Qt.AlignLeft)
+        self.search_label.setMinimumWidth(40)
+        self.search_entry.setAlignment(Qt.AlignLeft)
+        self.search_entry.setMinimumWidth(40)
