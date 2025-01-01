@@ -3,15 +3,13 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLabel,
-    QPushButton,
     QTabWidget,
     QHBoxLayout,
-    QFrame,
-    QGroupBox,
-    QGridLayout,
     QVBoxLayout,
     QMessageBox,
+    QFrame,
 )
+from PySide6.QtCore import Qt
 from src.config import Config
 from src.utils.logger import Logger
 from src.models.product import ProductManager
@@ -60,30 +58,48 @@ class MainWindow(QMainWindow):
     def setup_sidebar(self):
         sidebar_widget = QWidget(self)
         sidebar_layout = QVBoxLayout(sidebar_widget)
-
         sidebar_widget.setFixedWidth(300)
         sidebar_layout.setContentsMargins(10, 10, 10, 10)
+        sidebar_layout.setSpacing(8)
+        sidebar_widget.setStyleSheet(
+            "QWidget { background-color: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 5px; padding: 0px; }"
+        )
 
-        # Label for sidebar title
-        sidebar_title_label = QLabel("Sales Summary", self)
-        sidebar_layout.addWidget(sidebar_title_label)
-
-        # Add sales information
+        # Create cards
         self.totalSales = QLabel("Loading...", self)
         self.totalThisMonth = QLabel("Loading...", self)
         self.totalToday = QLabel("Loading...", self)
+        labels = [
+            ("Total Sales", self.totalSales),
+            ("This Month", self.totalThisMonth),
+            ("Today", self.totalToday),
+        ]
 
-        self.refresh_sidebar_totals()
+        for title, value_label in labels:
+            card = QFrame(self)
+            card.setFrameShape(QFrame.StyledPanel)
+            card.setStyleSheet(
+                "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 0px;}"
+            )
 
-        sidebar_layout.addWidget(QLabel("Total sales: ", self))
-        sidebar_layout.addWidget(self.totalSales)
-        sidebar_layout.addWidget(QLabel("Sales this month: ", self))
-        sidebar_layout.addWidget(self.totalThisMonth)
-        sidebar_layout.addWidget(QLabel("Sales today: ", self))
-        sidebar_layout.addWidget(self.totalToday)
+            layout = QVBoxLayout(card)
+            layout.setSpacing(4)
 
-        # Add sidebar to the right of the main window
+            title_label = QLabel(title, self)
+            title_label.setStyleSheet("border: 0px; color: #888888; font-size: 13px;")
+            value_label.setStyleSheet(
+                "border: 0px; font-size: 18px; font-weight: bold; color: #ffffff;"
+            )
+
+            layout.addWidget(title_label)
+            layout.addWidget(value_label)
+            sidebar_layout.addWidget(card)
+
+        sidebar_layout.addStretch()
         self.main_layout.addWidget(sidebar_widget)
+
+        # Refresh totals
+        self.refresh_sidebar_totals()
 
     def refresh_sidebar_totals(self):
         transactions = self.transaction_manager.get_all_transactions()
