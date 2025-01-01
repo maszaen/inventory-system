@@ -9,23 +9,14 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QMessageBox,
     QAbstractItemView,
+    QMenu,
 )
-from PySide6.QtCore import Qt, QAbstractTableModel, QModelIndex
+from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QPoint
 from bson import ObjectId
 from src.ui.dialogs.sale_dialog import SaleDialog
-
-
-from PySide6.QtWidgets import (
-    QTableView,
-    QVBoxLayout,
-    QPushButton,
-    QLabel,
-    QLineEdit,
-    QHBoxLayout,
-    QMessageBox,
-)
-
 from src.ui.models.sales_table_model import SalesTableModel
+from src.utils.pagination import PaginationWidget
 
 
 class SalesTab(QWidget):
@@ -42,6 +33,8 @@ class SalesTab(QWidget):
         self.transaction_manager = transaction_manager
         self.logger = logger
         self.refresh_callback = refresh_callback
+        self.cached_transactions = []
+        self.filtered_transactions = []
         self.setup_ui()
         self.refresh_sales_list()
 
@@ -65,41 +58,52 @@ class SalesTab(QWidget):
         self.search_entry.textChanged.connect(self.refresh_sales_list)
         control_layout.addWidget(self.search_entry)
 
-        # Delete and Edit Buttons
-        self.delete_button = QPushButton("Delete")
-        self.delete_button.setEnabled(False)
-        self.delete_button.clicked.connect(self.delete_selected_sale)
-        control_layout.addWidget(self.delete_button)
-
-        self.edit_button = QPushButton("Edit")
-        self.edit_button.setEnabled(False)
-        self.edit_button.clicked.connect(self.edit_selected_sale)
-        control_layout.addWidget(self.edit_button)
-
         # Sales Table
         self.sales_table = QTableView()
         self.sales_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.sales_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.sales_table.horizontalHeader().setStretchLastSection(
-            True
-        )  # Make the last section stretch
-        self.sales_table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch
-        )  # Stretch all sections
+        self.sales_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.sales_table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.sales_table.customContextMenuRequested.connect(self.show_context_menu)
         main_layout.addWidget(self.sales_table)
+
+        self.pagination = PaginationWidget()
+        self.pagination.pageChanged.connect(self.on_page_changed)
+        main_layout.addWidget(self.pagination)
 
     def refresh_sales_list(self):
         search_text = self.search_entry.text().strip().lower()
 
-        transactions = self.transaction_manager.get_all_transactions()
-        filtered_transactions = [
+        # Update cache jika perlu
+        self.cached_transactions = self.transaction_manager.get_all_transactions()
+
+        # Filter dari cache
+        self.filtered_transactions = [
             transaction
-            for transaction in transactions
+            for transaction in self.cached_transactions
             if search_text in transaction.product_name.lower()
         ]
 
-        self.model = SalesTableModel(filtered_transactions)
+        # Update pagination
+        self.pagination.set_total_items(len(self.filtered_transactions))
+
+        # Get page data
+        self.update_current_page()
+
+    def update_current_page(self):
+        # Calculate slice indices
+        start_idx = (self.pagination.current_page - 1) * self.pagination.items_per_page
+        end_idx = start_idx + self.pagination.items_per_page
+
+        # Get transactions for current page
+        page_transactions = self.filtered_transactions[start_idx:end_idx]
+
+        # Update model
+        self.model = SalesTableModel(page_transactions)
         self.sales_table.setModel(self.model)
+
+    def on_page_changed(self, page, items_per_page):
+        self.update_current_page()
 
     def show_add_sale_dialog(self):
         dialog = SaleDialog(
@@ -161,8 +165,45 @@ class SalesTab(QWidget):
                         f"Deleted sale: {transaction._id} - Product: {transaction.product_name}"
                     )
                     self.refresh_sales_list()
+                    if self.refresh_callback:
+                        self.refresh_callback()
                     QMessageBox.information(
                         self, "Success", "Sale deleted successfully!"
                     )
                 else:
                     QMessageBox.critical(self, "Error", "Failed to delete sale")
+
+    def show_context_menu(self, position: QPoint):
+        indexes = self.sales_table.selectedIndexes()
+        if indexes:
+            menu = QMenu()
+            menu.setStyleSheet(
+                """
+                QMenu {
+                    background-color: #1e1e1e; 
+                    border: 1px solid #3c3c3c; 
+                    border-radius: 8px; 
+                    color: white; 
+                    font-size: 12px;
+                }
+                QMenu::item {
+                    padding: 5px 25px;
+                }
+                QMenu::item:selected {
+                    background-color: #3c3c3c;
+                }
+                """
+            )
+
+            edit_action = QAction("Edit", self)
+            delete_action = QAction("Delete", self)
+
+            menu.addAction(edit_action)
+            menu.addAction(delete_action)
+
+            action = menu.exec(self.sales_table.viewport().mapToGlobal(position))
+
+            if action == edit_action:
+                self.edit_selected_sale()
+            elif action == delete_action:
+                self.delete_selected_sale()
