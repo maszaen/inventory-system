@@ -159,7 +159,7 @@ class SaleDialog(QDialog):
 
     def save_sale(self):
         try:
-            sale_date = self.date_picker.date().toString("yyyy-MM-dd")
+            sale_date = self.date_picker.date().toPython()
             product_name = self.product_combo.currentText()
             quantity = int(self.quantity_entry.text())
 

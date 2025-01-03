@@ -2,3 +2,20 @@
 [2025-01-03 09:43:16] Updated product: Infinix Zero 30 (ID: 6772317bafd78ac1b956df3f, Price: 2400000, Stock: 8)
 [2025-01-03 09:43:37] Deleted product: Infinix Zero 30 (ID: 6772317bafd78ac1b956df3f)
 [2025-01-03 09:53:15] Deleted sale: 67750ac607fb4792f4de78b2 - Product: Infinix Zero 30
+[2025-01-03 10:20:11] New sale recorded:
+  Product: Xiaomi 12
+  Quantity: 1
+  Total: 20999000
+  Stock: 20 → 19
+[2025-01-03 10:32:12] Sale updated:
+  Transaction ID: 6777576b791aef4dcbafb6bd
+  Product: Xiaomi 12
+  Quantity: 4
+  Total: 83996000
+  Stock: 20 → 16
+[2025-01-03 19:27:48] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 1
+  Total: 19000000
+  Stock: 18 → 17
+[2025-01-03 19:27:59] Deleted sale: 6777d7c462234f4ee6ed3153 - Product: Samsung S24 Ultra
