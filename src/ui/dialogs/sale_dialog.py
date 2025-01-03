@@ -33,7 +33,7 @@ class SaleDialog(QDialog):
 
     def setup_dialog(self):
         self.setWindowTitle("Edit Sale" if self.transaction else "Add New Sale")
-        self.setGeometry(100, 100, 300, 280)  # Sedikit ditinggikan untuk stock info
+        self.setGeometry(100, 100, 300, 280)
         self.setWindowModality(Qt.ApplicationModal)
 
         layout = QVBoxLayout()
@@ -297,7 +297,6 @@ class SaleDialog(QDialog):
             QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
 
     def update_stock_info(self, product_name):
-        """Update stock information when product selection changes"""
         selected_product = next(
             (p for p in self.products if p.name == product_name), None
         )
