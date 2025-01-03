@@ -19,3 +19,27 @@
   Total: 19000000
   Stock: 18 → 17
 [2025-01-03 19:27:59] Deleted sale: 6777d7c462234f4ee6ed3153 - Product: Samsung S24 Ultra
+[2025-01-03 19:41:12] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 3
+  Total: 57000000
+  Stock: 18 → 15
+[2025-01-03 19:41:22] New sale recorded:
+  Product: Xiaomi 14
+  Quantity: 1
+  Total: 29000000
+  Stock: 10 → 9
+[2025-01-03 19:42:20] Updated product: Infinix Flip 3 (ID: 67774e7e2e1ed6d79541e581, Price: 12000000, Stock: 52)
+[2025-01-03 19:42:29] Deleted product: Infinix Flip 3 (ID: 67774e7e2e1ed6d79541e581)
+[2025-01-03 22:22:55] Updated product: Vivo Y33s (ID: 6777e3104f2a724d109780c9, Price: 8000000, Stock: 3)
+[2025-01-03 22:24:23] Updated product: Samsung A10s (ID: 6777e3104f2a724d109780c9, Price: 8000000, Stock: 3)
+[2025-01-03 22:24:50] Created new product: Vivo Mattepad (ID: 677801428114ba103656d9b7, Price: 29000000, Stock: 4)
+[2025-01-03 22:25:05] New sale recorded:
+  Product: Samsung S24 Ultra
+  Quantity: 2
+  Total: 38000000
+  Stock: 15 → 13
+[2025-01-03 22:25:55] Created new product: iPhone 12 Promax (ID: 677801838114ba103656d9b9, Price: 1000000, Stock: 10)
+[2025-01-03 22:26:11] Created new product: Oppo Reno 12s (ID: 677801938114ba103656d9ba, Price: 19000000, Stock: 10)
+[2025-01-03 22:26:33] Created new product: Oppo Reno 10 Pro (ID: 677801a98114ba103656d9bb, Price: 19000000, Stock: 12)
+[2025-01-03 22:27:02] Created new product: Macbook Pro M1 (ID: 677801c68114ba103656d9bc, Price: 23000000, Stock: 10)

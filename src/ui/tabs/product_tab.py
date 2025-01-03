@@ -26,6 +26,7 @@ class ProductTab(QWidget):
         self.logger = logger
         self.cached_products = []
         self.filtered_products = []
+        self.cached_products = self.product_manager.get_all_products()
         self.setup_ui()
         self.refresh_product_list()
 
@@ -65,9 +66,7 @@ class ProductTab(QWidget):
     def refresh_product_list(self):
         search_text = self.search_entry.text().strip().lower()
 
-        # Update cache jika belum ada
-        if not self.cached_products:
-            self.cached_products = self.product_manager.get_all_products()
+        self.cached_products = self.product_manager.get_all_products()
 
         # Filter dari cache
         self.filtered_products = [
@@ -94,7 +93,7 @@ class ProductTab(QWidget):
         self.model = ProductTableModel(page_products)
         self.product_table.setModel(self.model)
 
-    def on_page_changed(self, page, items_per_page):
+    def on_page_changed(self):
         self.update_current_page()
 
     def show_add_product_dialog(self):
