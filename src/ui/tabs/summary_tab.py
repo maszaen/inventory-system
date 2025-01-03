@@ -11,10 +11,8 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QFileDialog,
 )
-from PySide6.QtCore import QDate, Qt
-from PySide6.QtGui import QFont
+from PySide6.QtCore import QDate
 from decimal import Decimal
-from datetime import datetime, timedelta
 from collections import defaultdict
 
 import xlsxwriter
@@ -28,12 +26,12 @@ class SummaryTab(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setSpacing(15)
+        main_layout.setSpacing(5)
 
         # Date Selection Card
         date_card = QFrame(self)
         date_card.setStyleSheet(
-            "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 15px; }"
+            "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 2px; }"
         )
         date_layout = QHBoxLayout(date_card)
 
@@ -145,7 +143,7 @@ class SummaryTab(QWidget):
             """
             QPushButton {
                 background-color: #2563eb;
-                border: none;
+                border: 0px;
                 border-radius: 4px;
                 padding: 8px 16px;
                 color: white;
@@ -184,6 +182,7 @@ class SummaryTab(QWidget):
         scroll_area = QScrollArea(self)
         scroll_area.setWidgetResizable(True)
         scroll_content = QWidget()
+        scroll_content.setStyleSheet("background-color: #2d2d2d; border: 0px;")
         scroll_layout = QVBoxLayout(scroll_content)
         self.summary_text = QTextEdit(scroll_content)
         self.summary_text.setReadOnly(True)
@@ -393,11 +392,11 @@ class SummaryTab(QWidget):
 
         if not transactions:
             # Return early with "No Data" message if no transactions
-            return """
+            return f"""
             <style>
-                body { font-family: Arial, sans-serif; }
-                .header { color: #ffffff; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
-                .message { color: #888888; font-size: 14px; text-align: center; margin-top: 20px; }
+                body {{ font-family: Arial, sans-serif; }}
+                .header {{ color: #ffffff; font-size: 18px; font-weight: bold; margin-bottom: 15px; }}
+                .message {{ color: #888888; font-size: 14px; text-align: center; margin-top: 20px; }}
             </style>
             
             <div class="header">Summary Report ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})</div>

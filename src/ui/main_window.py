@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         if self.user:
             header_card = QFrame(self)
             header_card.setStyleSheet(
-                "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 12px; }"
+                "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 4px; }"
             )
             header_layout = QVBoxLayout(header_card)
             header_layout.setSpacing(2)
@@ -85,7 +85,12 @@ class MainWindow(QMainWindow):
             )
 
             role_label = QLabel(
-                self.user.role.title() if hasattr(self.user, "role") else "Staff", self
+                (
+                    f"Role: {self.user.role.title()}"
+                    if hasattr(self.user, "role")
+                    else "Role: Staff"
+                ),
+                self,
             )
             role_label.setStyleSheet("border: 0px; color: #2563eb; font-size: 13px;")
 
@@ -96,7 +101,9 @@ class MainWindow(QMainWindow):
 
         # Statistics Cards Section
         stats_label = QLabel("Sales Overview", self)
-        stats_label.setStyleSheet("color: #888888; font-size: 13px; margin-top: 8px;")
+        stats_label.setStyleSheet(
+            "color: #888888; font-size: 13px; margin-top: 8px; border: 0px;"
+        )
         sidebar_layout.addWidget(stats_label)
 
         # Sales Statistics Cards
@@ -114,7 +121,7 @@ class MainWindow(QMainWindow):
             card = QFrame(self)
             card.setFrameShape(QFrame.StyledPanel)
             card.setStyleSheet(
-                "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 12px; }"
+                "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 4px; }"
             )
 
             layout = QVBoxLayout(card)
@@ -136,7 +143,9 @@ class MainWindow(QMainWindow):
 
         # Quick Actions Section
         actions_label = QLabel("Quick Actions", self)
-        actions_label.setStyleSheet("color: #888888; font-size: 13px; margin-top: 8px;")
+        actions_label.setStyleSheet(
+            "color: #888888; font-size: 13px; margin-top: 8px; border: 0px;"
+        )
         sidebar_layout.addWidget(actions_label)
 
         # Action Buttons
@@ -165,16 +174,11 @@ class MainWindow(QMainWindow):
         add_sale_btn.setStyleSheet(action_button_style)
         add_sale_btn.clicked.connect(lambda: self.sales_tab.show_add_sale_dialog())
 
-        view_summary_btn = QPushButton("📊 View Summary")
-        view_summary_btn.setStyleSheet(action_button_style)
-        view_summary_btn.clicked.connect(lambda: self.summary_tab.generate_summary())
-
         sidebar_layout.addWidget(add_product_btn)
         sidebar_layout.addWidget(add_sale_btn)
-        sidebar_layout.addWidget(view_summary_btn)
 
         # Version info at bottom
-        version_label = QLabel(f"Version {Config.APP_VERSION}", self)
+        version_label = QLabel(f"App Version {Config.APP_VERSION}", self)
         version_label.setStyleSheet("color: #888888; font-size: 12px; padding: 8px 0;")
         version_label.setAlignment(Qt.AlignCenter)
 
