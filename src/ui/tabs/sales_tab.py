@@ -180,25 +180,35 @@ class SalesTab(QWidget):
             menu.setStyleSheet(
                 """
                 QMenu {
-                    background-color: #1e1e1e; 
-                    border: 1px solid #3c3c3c; 
-                    border-radius: 8px; 
-                    color: white; 
-                    font-size: 12px;
+                    background-color: #1e1e1e;
+                    border: 1px solid #3c3c3c;
+                    border-radius: 6px;
+                    padding: 0px;
                 }
                 QMenu::item {
-                    padding: 5px 25px;
+                    padding: 4px 24px 4px 8px;
+                    color: white;
+                    font-size: 13px;
+                    border-radius: 4px;
+                    margin: 2px 4px;
                 }
                 QMenu::item:selected {
                     background-color: #3c3c3c;
                 }
+                QMenu::separator {
+                    height: 1px;
+                    background: #3c3c3c;
+                    margin: 4px 8px;
+                }
                 """
             )
 
-            edit_action = QAction("Edit", self)
-            delete_action = QAction("Delete", self)
+            # Menggunakan simbol monochrome yang lebih profesional
+            edit_action = QAction("\u270E  Edit", self)  # ✎
+            delete_action = QAction("\u2716  Delete", self)  # ✖
 
             menu.addAction(edit_action)
+            menu.addSeparator()
             menu.addAction(delete_action)
 
             action = menu.exec(self.sales_table.viewport().mapToGlobal(position))

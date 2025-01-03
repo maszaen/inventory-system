@@ -1,6 +1,12 @@
 # Inventory System v4.0
+> Developed and Maintained by Zaeni Ahmad __(maszaen)__
 
-Sistem manajemen inventori dan penjualan dengan MongoDB Atlas.
+Sistem manajemen inventori dan penjualan dengan MongoDB Atlas Database.
+
+## Arsitektur
+- PyQt (pyside6) GUI
+- MongoDB Atlas
+- Native Python
 
 ## Fitur
 
@@ -26,30 +32,22 @@ git clone https://github.com/maszaen/inventory-system.git
 cd inventory-system
 ```
 
-2. Buat virtual environment (opsional tapi direkomendasikan):
-```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux/Mac
-source venv/bin/activate
-```
-
-3. Install dependencies:
+2. Install dependensi:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Setup MongoDB:
+3. Setup MongoDB:
    - Buat akun di [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
    - Buat cluster baru
    - Dapatkan connection string
    - Whitelist IP address Anda
+   - Jika belum paham, bisa cek dokumentasi langsung dari mongodb untuk setup database
 
-5. Buat file .env di root folder:
+4. Buat file .env di root folder:
 ```
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
-DB_NAME=inventory_system
+MONGODB_URI=<Isi dengan koneksi string mongodb>
+DB_NAME=<Isi dengan nama database sesuai yang kamu inginkan>
 ```
 
 ## Struktur Direktori

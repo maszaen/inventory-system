@@ -22,12 +22,12 @@ class ChartTab(QWidget):
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setSpacing(15)
+        layout.setSpacing(5)
 
         # Control Card
         control_card = QFrame(self)
         control_card.setStyleSheet(
-            "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 15px; }"
+            "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 2px; }"
         )
         control_layout = QHBoxLayout(control_card)
 
