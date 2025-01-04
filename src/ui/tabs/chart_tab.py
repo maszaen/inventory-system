@@ -9,9 +9,10 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis, QDateTimeAxis
 from PySide6.QtGui import QPainter
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict
-import calendar
+
+from src.style_config import Theme
 
 
 class ChartTab(QWidget):
@@ -21,13 +22,14 @@ class ChartTab(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
+        colors = Theme.get_theme_colors()
         layout = QVBoxLayout(self)
         layout.setSpacing(5)
 
         # Control Card
         control_card = QFrame(self)
         control_card.setStyleSheet(
-            "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 2px; }"
+            f"QFrame {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 2px; }}"
         )
         control_layout = QHBoxLayout(control_card)
 
@@ -37,7 +39,7 @@ class ChartTab(QWidget):
         year_layout = QVBoxLayout(year_widget)
 
         year_label = QLabel("Select Year")
-        year_label.setStyleSheet("color: #888888; font-size: 13px;")
+        year_label.setStyleSheet(f"color: {colors['text_secondary']}; font-size: 13px;")
 
         self.year_combo = QComboBox()
         current_year = datetime.now().year
@@ -45,26 +47,26 @@ class ChartTab(QWidget):
         self.year_combo.addItems([str(year) for year in years])
         self.year_combo.setCurrentText(str(current_year))
         self.year_combo.setStyleSheet(
-            """
-            QComboBox {
-                background-color: #1e1e1e;
-                border: 1px solid #3c3c3c;
+            f"""
+            QComboBox {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px;
-                color: white;
+                color: {colors['text_primary']};
                 min-width: 100px;
-            }
-            QComboBox::drop-down {
+            }}
+            QComboBox::drop-down {{
                 border: none;
-                background-color: #3c3c3c;
-            }
-            QComboBox::down-arrow {
+                background-color: {colors['background']};
+            }}
+            QComboBox::down-arrow {{
                 image: none;
                 border-left: 5px solid transparent;
                 border-right: 5px solid transparent;
-                border-top: 5px solid white;
+                border-top: 5px solid {colors['text_primary']};
                 margin-right: 5px;
-            }
+            }}
             """
         )
         self.year_combo.currentTextChanged.connect(self.update_chart)
@@ -77,7 +79,7 @@ class ChartTab(QWidget):
         # Chart Container
         chart_container = QFrame(self)
         chart_container.setStyleSheet(
-            "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 15px; }"
+            f"QFrame {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 15px; }}"
         )
         chart_layout = QVBoxLayout(chart_container)
 
@@ -93,6 +95,7 @@ class ChartTab(QWidget):
         self.update_chart()
 
     def setup_chart(self):
+        colors = Theme.get_theme_colors()
         # Create Chart
         chart = QChart()
         chart.setBackgroundBrush(Qt.transparent)
@@ -103,12 +106,12 @@ class ChartTab(QWidget):
         # Create Axes
         self.axis_x = QDateTimeAxis()
         self.axis_x.setFormat("MMM")
-        self.axis_x.setLabelsColor("#ffffff")
-        self.axis_x.setGridLineColor("#3c3c3c")
+        self.axis_x.setLabelsColor(colors["text_primary"])
+        self.axis_x.setGridLineColor(colors["border"])
 
         self.axis_y = QValueAxis()
-        self.axis_y.setLabelsColor("#ffffff")
-        self.axis_y.setGridLineColor("#3c3c3c")
+        self.axis_y.setLabelsColor(colors["text_primary"])
+        self.axis_y.setGridLineColor(colors["border"])
         self.axis_y.setLabelFormat("Rp%',.0f")
 
         chart.addAxis(self.axis_x, Qt.AlignBottom)
