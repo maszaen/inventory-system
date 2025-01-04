@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
     QComboBox,
 )
 from PySide6.QtCore import Signal
+from src.style_config import Theme
 
 
 class PaginationWidget(QWidget):
@@ -21,57 +22,60 @@ class PaginationWidget(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
+        colors = Theme.get_theme_colors()
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 10, 0, 0)
 
         # Items per page selector
         self.page_size_label = QLabel("Items per page:", self)
-        self.page_size_label.setStyleSheet("color: #888888; font-size: 13px;")
+        self.page_size_label.setStyleSheet(
+            f"color: {colors['text_secondary']}; font-size: 13px;"
+        )
 
         self.page_size_combo = QComboBox(self)
         self.page_size_combo.addItems(["10", "25", "50", "100"])
         self.page_size_combo.setStyleSheet(
-            """
-            QComboBox {
-                background-color: #2d2d2d;
-                border: 1px solid #3c3c3c;
+            f"""
+            QComboBox {{
+                background-color: {colors['card_bg']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px;
-                color: white;
+                color: {colors['text_primary']};
                 min-width: 70px;
-            }
-            QComboBox::drop-down {
+            }}
+            QComboBox::drop-down {{
                 border: none;
-                background-color: #3c3c3c;
-            }
-            QComboBox::down-arrow {
+                background-color: {colors['border']};
+            }}
+            QComboBox::down-arrow {{
                 image: none;
                 border-left: 5px solid transparent;
                 border-right: 5px solid transparent;
-                border-top: 5px solid white;
+                border-top: 5px solid {colors['text_primary']};
                 margin-right: 5px;
-            }
+            }}
         """
         )
         self.page_size_combo.currentTextChanged.connect(self.on_page_size_changed)
 
         # Navigation buttons style
-        button_style = """
-            QPushButton {
-                background-color: #2d2d2d;
-                border: 1px solid #3c3c3c;
+        button_style = f"""
+            QPushButton {{
+                background-color: {colors['card_bg']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px 10px;
-                color: white;
+                color: {colors['text_primary']};
                 min-width: 30px;
-            }
-            QPushButton:hover {
-                background-color: #3c3c3c;
-            }
-            QPushButton:disabled {
-                background-color: #1e1e1e;
-                color: #666666;
-            }
+            }}
+            QPushButton:hover {{
+                background-color: {colors['border']};
+            }}
+            QPushButton:disabled {{
+                background-color: {colors['background']};
+                color: {colors['text_secondary']};
+            }}
         """
 
         # Navigation buttons
@@ -95,7 +99,9 @@ class PaginationWidget(QWidget):
 
         # Page info label
         self.page_info = QLabel(self)
-        self.page_info.setStyleSheet("color: white; margin: 0 10px;")
+        self.page_info.setStyleSheet(
+            f"color: {colors['text_primary']}; margin: 0 10px;"
+        )
 
         # Add widgets to layout
         layout.addWidget(self.page_size_label)

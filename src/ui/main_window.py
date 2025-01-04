@@ -20,8 +20,8 @@ from src.ui.tabs.sales_tab import SalesTab
 from src.ui.tabs.summary_tab import SummaryTab
 from src.ui.tabs.chart_tab import ChartTab
 from src.utils.calculate_totals import calculate_totals
-
 from PySide6.QtGui import QGuiApplication
+from src.style_config import Theme
 
 
 class MainWindow(QMainWindow):
@@ -31,6 +31,8 @@ class MainWindow(QMainWindow):
         self.logger = Logger()
         self.product_manager = ProductManager()
         self.transaction_manager = TransactionManager()
+
+        self.is_dark_mode = Theme.detect_system_theme()
 
         self.setWindowTitle(Config.APP_TITLE)
         self.setGeometry(100, 100, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT)
@@ -58,30 +60,32 @@ class MainWindow(QMainWindow):
             self.move(frame_geometry.topLeft())
 
     def setup_sidebar(self):
+        colors = Theme.get_theme_colors()
         sidebar_widget = QWidget(self)
         sidebar_layout = QVBoxLayout(sidebar_widget)
         sidebar_widget.setFixedWidth(300)
         sidebar_layout.setContentsMargins(10, 10, 10, 10)
         sidebar_layout.setSpacing(8)
         sidebar_widget.setStyleSheet(
-            "QWidget { background-color: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 5px; padding: 0px; }"
+            f"QWidget {{ background-color: {colors['background']}; border: 1px solid {colors['border']}; border-radius: 5px; padding: 0px; }}"
         )
 
-        # Header section with user info
         if self.user:
             header_card = QFrame(self)
             header_card.setStyleSheet(
-                "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 4px; }"
+                f"QFrame {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 4px; }}"
             )
             header_layout = QVBoxLayout(header_card)
             header_layout.setSpacing(2)
 
             welcome_label = QLabel(f"Welcome,", self)
-            welcome_label.setStyleSheet("border: 0px; color: #888888; font-size: 13px;")
+            welcome_label.setStyleSheet(
+                f"border: 0px; color: {colors['text_secondary']}; font-size: 13px;"
+            )
 
             user_name = QLabel(self.user.full_name, self)
             user_name.setStyleSheet(
-                "border: 0px; color: white; font-size: 16px; font-weight: bold;"
+                f"border: 0px; color: {colors['text_primary']}; font-size: 16px; font-weight: bold;"
             )
 
             role_label = QLabel(
@@ -92,7 +96,9 @@ class MainWindow(QMainWindow):
                 ),
                 self,
             )
-            role_label.setStyleSheet("border: 0px; color: #2563eb; font-size: 13px;")
+            role_label.setStyleSheet(
+                f"border: 0px; color: {colors['accent']}; font-size: 13px;"
+            )
 
             header_layout.addWidget(welcome_label)
             header_layout.addWidget(user_name)
@@ -102,7 +108,7 @@ class MainWindow(QMainWindow):
         # Statistics Cards Section
         stats_label = QLabel("Sales Overview", self)
         stats_label.setStyleSheet(
-            "color: #888888; font-size: 13px; margin-top: 8px; border: 0px;"
+            f"color: {colors['text_secondary']}; font-size: 13px; margin-top: 8px; border: 0px;"
         )
         sidebar_layout.addWidget(stats_label)
 
@@ -121,7 +127,7 @@ class MainWindow(QMainWindow):
             card = QFrame(self)
             card.setFrameShape(QFrame.StyledPanel)
             card.setStyleSheet(
-                "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 4px; }"
+                f"QFrame {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 4px; }}"
             )
 
             layout = QVBoxLayout(card)
@@ -129,12 +135,14 @@ class MainWindow(QMainWindow):
 
             header_layout = QHBoxLayout()
             title_label = QLabel(f"{icon} {title}", self)
-            title_label.setStyleSheet("border: 0px; color: #888888; font-size: 13px;")
+            title_label.setStyleSheet(
+                f"border: 0px; color: {colors['text_secondary']}; font-size: 13px;"
+            )
             header_layout.addWidget(title_label)
             header_layout.addStretch()
 
             value_label.setStyleSheet(
-                "border: 0px; font-size: 18px; font-weight: bold; color: #ffffff;"
+                f"border: 0px; font-size: 18px; font-weight: bold; color: {colors['text_primary']};"
             )
 
             layout.addLayout(header_layout)
@@ -144,24 +152,24 @@ class MainWindow(QMainWindow):
         # Quick Actions Section
         actions_label = QLabel("Quick Actions", self)
         actions_label.setStyleSheet(
-            "color: #888888; font-size: 13px; margin-top: 8px; border: 0px;"
+            f"color: {colors['text_secondary']}; font-size: 13px; margin-top: 8px; border: 0px;"
         )
         sidebar_layout.addWidget(actions_label)
 
         # Action Buttons
-        action_button_style = """
-            QPushButton {
-                background-color: #2d2d2d;
-                border: 1px solid #3c3c3c;
+        action_button_style = f"""
+            QPushButton {{
+                background-color: {colors['card_bg']};
+                border: 1px solid {colors['border']};
                 border-radius: 8px;
                 padding: 8px;
-                color: white;
+                color: {colors['text_primary']};
                 text-align: left;
                 font-size: 13px;
-            }
-            QPushButton:hover {
-                background-color: #3c3c3c;
-            }
+            }}
+            QPushButton:hover {{
+                background-color: {colors['border']};
+            }}
         """
 
         add_product_btn = QPushButton("➕ Add New Product")

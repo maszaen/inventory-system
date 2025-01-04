@@ -1,47 +1,33 @@
-MENU_STYLE = {
-    "bg": "whitesmoke",
-    "fg": "black",
-    "activebackground": "gray",
-    "activeforeground": "white",
-    "font": ("Arial", 10, "bold"),
-    "relief": "flat",
-}
+from PySide6.QtGui import QPalette
+from PySide6.QtWidgets import QApplication
 
-SUBMENU_STYLE = {
-    "bg": "lightgray",
-    "fg": "black",
-    "activebackground": "darkblue",
-    "activeforeground": "white",
-    "font": ("Arial", 10),
-}
 
-TREEVIEW_STYLE = {
-    "font": ("Arial", 11),
-    "rowheight": 25,
-    "padding": (10, 0),
-}
+class Theme:
+    @staticmethod
+    def detect_system_theme():
+        palette = QApplication.palette()
+        window_color = palette.color(QPalette.Window)
+        return window_color.lightness() < 128
 
-TREEVIEW_HEADING_STYLE = {
-    "font": ("Arial", 10, "bold"),
-    "background": "whitesmoke",
-}
+    @staticmethod
+    def get_theme_colors():
+        is_dark = Theme.detect_system_theme()
 
-BUTTON_STYLE = {
-    "background": "whitesmoke",
-    "font": ("Arial", 10),
-    "padding": 1,
-}
-
-LABEL_STYLE = {
-    "background": "whitesmoke",
-    "font": ("Arial", 10),
-    "padding": 1,
-}
-
-FRAME_STYLE = {
-    "background": "whitesmoke",
-}
-
-# 1e1e1e darker than 2d2d2d (base color)
-# 2d2d2d darker (layer 2nd color)
-# 3c3c3c lighter (border color)
+        if is_dark:
+            return {
+                "background": "#1e1e1e",
+                "border": "#3c3c3c",
+                "card_bg": "#2d2d2d",
+                "text_primary": "#ffffff",
+                "text_secondary": "#888888",
+                "accent": "#2563eb",
+            }
+        else:
+            return {
+                "background": "#f5f5f5",
+                "border": "#e0e0e0",
+                "card_bg": "#ffffff",
+                "text_primary": "#000000",
+                "text_secondary": "#666666",
+                "accent": "#2563eb",
+            }

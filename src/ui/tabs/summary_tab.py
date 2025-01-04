@@ -11,10 +11,10 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QFileDialog,
 )
+from src.style_config import Theme
 from PySide6.QtCore import QDate
 from decimal import Decimal
 from collections import defaultdict
-
 import xlsxwriter
 
 
@@ -25,13 +25,14 @@ class SummaryTab(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
+        colors = Theme.get_theme_colors()
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(5)
 
         # Date Selection Card
         date_card = QFrame(self)
         date_card.setStyleSheet(
-            "QFrame { background-color: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 8px; padding: 2px; }"
+            f"QFrame {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 2px; }}"
         )
         date_layout = QHBoxLayout(date_card)
 
@@ -40,23 +41,25 @@ class SummaryTab(QWidget):
         start_date_widget.setStyleSheet("border: none;")
         start_date_layout = QVBoxLayout(start_date_widget)
         start_date_label = QLabel("Start Date")
-        start_date_label.setStyleSheet("color: #888888; font-size: 13px;")
+        start_date_label.setStyleSheet(
+            f"color: {colors['text_secondary']}; font-size: 13px;"
+        )
         self.start_date = QDateEdit(self)
         self.start_date.setCalendarPopup(True)
         self.start_date.setDate(QDate.currentDate().addMonths(-1))
         self.start_date.setStyleSheet(
-            """
-            QDateEdit {
-                background-color: #1e1e1e;
-                border: 1px solid #3c3c3c;
+            f"""
+            QDateEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px;
-                color: white;
-            }
-            QDateEdit::drop-down {
+                color: {colors['text_primary']};
+            }}
+            QDateEdit::drop-down {{
                 border: none;
-                background-color: #3c3c3c;
-            }
+                background-color: {colors['border']};
+            }}
             """
         )
         start_date_layout.addWidget(start_date_label)
@@ -67,23 +70,25 @@ class SummaryTab(QWidget):
         end_date_widget.setStyleSheet("border: none;")
         end_date_layout = QVBoxLayout(end_date_widget)
         end_date_label = QLabel("End Date")
-        end_date_label.setStyleSheet("color: #888888; font-size: 13px;")
+        end_date_label.setStyleSheet(
+            f"color: {colors['text_secondary']}; font-size: 13px;"
+        )
         self.end_date = QDateEdit(self)
         self.end_date.setCalendarPopup(True)
         self.end_date.setDate(QDate.currentDate())
         self.end_date.setStyleSheet(
-            """
-            QDateEdit {
-                background-color: #1e1e1e;
-                border: 1px solid #3c3c3c;
+            f"""
+            QDateEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px;
-                color: white;
-            }
-            QDateEdit::drop-down {
+                color: {colors['text_primary']};
+            }}
+            QDateEdit::drop-down {{
                 border: none;
-                background-color: #3c3c3c;
-            }
+                background-color: {colors['border']};
+            }}
             """
         )
         end_date_layout.addWidget(end_date_label)
@@ -94,21 +99,23 @@ class SummaryTab(QWidget):
         quick_dates_widget.setStyleSheet("border: none;")
         quick_dates_layout = QVBoxLayout(quick_dates_widget)
         quick_dates_label = QLabel("Quick Select")
-        quick_dates_label.setStyleSheet("color: #888888; font-size: 13px;")
+        quick_dates_label.setStyleSheet(
+            f"color: {colors['text_secondary']}; font-size: 13px;"
+        )
 
         quick_dates_buttons = QHBoxLayout()
 
-        button_style = """
-            QPushButton {
-                background-color: #1e1e1e;
-                border: 1px solid #3c3c3c;
+        button_style = f"""
+            QPushButton {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px 10px;
-                color: white;
-            }
-            QPushButton:hover {
-                background-color: #3c3c3c;
-            }
+                color: {colors['text_primary']};
+            }}
+            QPushButton:hover {{
+                background-color: {colors['border']};
+            }}
         """
 
         today_btn = QPushButton("Today")
@@ -140,18 +147,18 @@ class SummaryTab(QWidget):
         # Generate Button
         self.generate_button = QPushButton("Generate Report")
         self.generate_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2563eb;
+            f"""
+            QPushButton {{
+                background-color: {colors['accent']};
                 border: 0px;
                 border-radius: 4px;
                 padding: 8px 16px;
                 color: white;
                 font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #1d4ed8;
-            }
+            }}
+            QPushButton:hover {{
+                background-color: {colors['border']};
+            }}
             """
         )
         self.generate_button.clicked.connect(self.generate_summary)
@@ -159,18 +166,18 @@ class SummaryTab(QWidget):
         # Export Button
         self.export_button = QPushButton("Export to Excel")
         self.export_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #059669;
+            f"""
+            QPushButton {{
+                background-color: {colors['accent']};
                 border: none;
                 border-radius: 4px;
                 padding: 8px 16px;
                 color: white;
                 font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #047857;
-            }
+            }}
+            QPushButton:hover {{
+                background-color: {colors['border']};
+            }}
             """
         )
         self.export_button.clicked.connect(self.export_to_excel)
@@ -182,10 +189,22 @@ class SummaryTab(QWidget):
         scroll_area = QScrollArea(self)
         scroll_area.setWidgetResizable(True)
         scroll_content = QWidget()
-        scroll_content.setStyleSheet("background-color: #2d2d2d; border: 0px;")
+        scroll_content.setStyleSheet(
+            f"background-color: {colors['card_bg']}; border: 0px;"
+        )
         scroll_layout = QVBoxLayout(scroll_content)
         self.summary_text = QTextEdit(scroll_content)
         self.summary_text.setReadOnly(True)
+        self.summary_text.setStyleSheet(
+            f"""
+            QTextEdit {{
+                background-color: {colors['card_bg']};
+                color: {colors['text_primary']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+            }}
+            """
+        )
         scroll_layout.addWidget(self.summary_text)
         scroll_area.setWidget(scroll_content)
 
@@ -389,14 +408,15 @@ class SummaryTab(QWidget):
         self, start_date, end_date, transactions, total_amount, product_summary, trends
     ):
         """Format the summary report with HTML styling"""
+        colors = Theme.get_theme_colors()
 
         if not transactions:
             # Return early with "No Data" message if no transactions
             return f"""
             <style>
                 body {{ font-family: Arial, sans-serif; }}
-                .header {{ color: #ffffff; font-size: 18px; font-weight: bold; margin-bottom: 15px; }}
-                .message {{ color: #888888; font-size: 14px; text-align: center; margin-top: 20px; }}
+                .header {{ color: {colors['text_primary']}; font-size: 18px; font-weight: bold; margin-bottom: 15px; }}
+                .message {{ color: {colors['text_secondary']}; font-size: 14px; text-align: center; margin-top: 20px; }}
             </style>
             
             <div class="header">Summary Report ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})</div>
@@ -406,11 +426,11 @@ class SummaryTab(QWidget):
         html = f"""
         <style>
             body {{ font-family: Arial, sans-serif; }}
-            .header {{ color: #ffffff; font-size: 18px; font-weight: bold; margin-bottom: 15px; }}
+            .header {{ color: {colors['text_primary']}; font-size: 18px; font-weight: bold; margin-bottom: 15px; }}
             .section {{ margin-bottom: 20px; }}
-            .subheader {{ color: #888888; font-size: 14px; margin: 10px 0; }}
-            .data {{ color: #ffffff; margin-left: 20px; }}
-            .highlight {{ color: #2563eb; font-weight: bold; }}
+            .subheader {{ color: {colors['text_secondary']}; font-size: 14px; margin: 10px 0; }}
+            .data {{ color: {colors['text_primary']}; margin-left: 20px; }}
+            .highlight {{ color: {colors['accent']}; font-weight: bold; }}
         </style>
         
         <div class="header">Summary Report ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})</div>
@@ -427,7 +447,7 @@ class SummaryTab(QWidget):
 
         # Hanya tampilkan top products jika ada data
         if trends.get("top_products"):
-            html += """
+            html += f"""
             <div class="section">
                 <div class="subheader">Top Selling Products</div>
                 <div class="data">
@@ -453,7 +473,7 @@ class SummaryTab(QWidget):
 
         # Hanya tampilkan product summary jika ada data
         if product_summary:
-            html += """
+            html += f"""
             <div class="section">
                 <div class="subheader">Detailed Product Summary</div>
                 <div class="data">
