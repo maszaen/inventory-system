@@ -5,7 +5,7 @@ load_dotenv()
 
 
 class Config:
-    APP_TITLE = "Inventory System"
+    APP_TITLE = "PyStockFlow"
     WINDOW_WIDTH = 1200
     WINDOW_HEIGHT = 800
 
@@ -13,9 +13,6 @@ class Config:
     LOG_DIR = os.path.join(BASE_DIR, "logs")
 
     MONGODB_URI = os.getenv("MONGODB_URI", "")
-    if not MONGODB_URI:
-        load_dotenv()
-        MONGODB_URI = os.getenv("MONGODB_URI", "")
     DB_NAME = os.getenv("DB_NAME", "PyStockFlow")
     APP_VERSION = "5.0"
 
@@ -23,6 +20,7 @@ class Config:
     def save_config(cls, mongodb_uri: str, db_name: str):
         cls.MONGODB_URI = mongodb_uri
         cls.DB_NAME = db_name
+        load_dotenv()
 
 
 class EnvConfig:

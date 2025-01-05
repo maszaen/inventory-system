@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QPoint
 from bson import ObjectId
+from src.style_config import Theme
 from src.ui.dialogs.product_dialog import ProductDialog
 from src.ui.models.product_table_model import ProductTableModel
 from src.utils.pagination import PaginationWidget
@@ -31,22 +32,31 @@ class ProductTab(QWidget):
         self.refresh_product_list()
 
     def setup_ui(self):
+        colors = Theme.get_theme_colors()
         main_layout = QVBoxLayout(self)
 
         # Control Layout
         control_layout = QHBoxLayout()
         main_layout.addLayout(control_layout)
 
-        # Add Product Button
-        self.add_product_button = QPushButton("+ Add")
-        self.add_product_button.clicked.connect(self.show_add_product_dialog)
-        control_layout.addWidget(self.add_product_button)
-
         # Search Label and Field
         self.search_label = QLabel("Search:")
+        self.search_label.setStyleSheet("padding: 5px")
         control_layout.addWidget(self.search_label)
 
         self.search_entry = QLineEdit()
+        self.search_entry.setPlaceholderText("Type product name...")
+        self.search_entry.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         self.search_entry.textChanged.connect(self.refresh_product_list)
         control_layout.addWidget(self.search_entry)
 
@@ -57,6 +67,27 @@ class ProductTab(QWidget):
         self.product_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.product_table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.product_table.customContextMenuRequested.connect(self.show_context_menu)
+        # self.product_table.setStyleSheet(
+        #     f"""
+        #     QTableView {{
+        #         background-color: {colors['base']};
+        #         color: {colors['text_primary']};
+        #         padding: 0px;
+        #         gridline-color: {colors['border']};
+        #         font-size: 12px;
+        #     }}
+
+        #     QHeaderView::section {{
+        #         background-color: {colors['base']};
+        #         color: {colors['text_primary']};
+        #     }}
+
+        #     QTableView::item:selected {{
+        #         background-color: {colors['background']};
+        #         color: {colors['text_primary']};
+        #     }}
+        #     """
+        # )
         main_layout.addWidget(self.product_table)
 
         self.pagination = PaginationWidget()

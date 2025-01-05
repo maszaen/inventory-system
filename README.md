@@ -1,4 +1,4 @@
-# Inventory System v4.0
+# PyStockFlow v4.0
 > Developed and Maintained by Zaeni Ahmad __(maszaen)__
 
 Sistem manajemen inventori dan penjualan dengan MongoDB Atlas Database.

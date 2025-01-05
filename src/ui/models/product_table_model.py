@@ -10,7 +10,7 @@ class ProductTableModel(QAbstractTableModel):
         return len(self._products)
 
     def columnCount(self, parent=None):
-        return 4  # ID, Name, Price, Stock
+        return 4
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():

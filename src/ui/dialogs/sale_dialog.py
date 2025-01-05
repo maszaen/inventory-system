@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QDate
 from src.models.transaction import Transaction
+from src.style_config import Theme
 from src.utils.logger import Logger
 
 
@@ -32,6 +33,7 @@ class SaleDialog(QDialog):
         self.setup_dialog()
 
     def setup_dialog(self):
+        colors = Theme.get_theme_colors()
         self.setWindowTitle("Edit Sale" if self.transaction else "Add New Sale")
         self.setGeometry(100, 100, 300, 280)
         self.setWindowModality(Qt.ApplicationModal)
@@ -43,18 +45,18 @@ class SaleDialog(QDialog):
         self.date_picker = QDateEdit(self)
         self.date_picker.setCalendarPopup(True)
         self.date_picker.setStyleSheet(
-            """
-            QDateEdit {
-                background-color: #2d2d2d;
-                border: 1px solid #3c3c3c;
+            f"""
+            QDateEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px;
-                color: white;
-            }
-            QDateEdit::drop-down {
+                color: {colors['text_primary']};
+            }}
+            QDateEdit::drop-down {{
                 border: none;
-                background-color: #3c3c3c;
-            }
+                background-color: {colors['border']};
+            }}
             """
         )
 
@@ -79,18 +81,18 @@ class SaleDialog(QDialog):
         self.product_combo = QComboBox(self)
         self.product_combo.addItems(product_names)
         self.product_combo.setStyleSheet(
-            """
-            QComboBox {
-                background-color: #2d2d2d;
-                border: 1px solid #3c3c3c;
+            f"""
+            QComboBox {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px;
-                color: white;
-            }
-            QComboBox::drop-down {
+                color: {colors['text_primary']};
+            }}
+            QComboBox::drop-down {{
                 border: none;
-                background-color: #3c3c3c;
-            }
+                background-color: {colors['background']};
+            }}
             """
         )
         if self.transaction:
@@ -114,28 +116,33 @@ class SaleDialog(QDialog):
 
         self.quantity_entry = QLineEdit(self)
         self.quantity_entry.setStyleSheet(
-            """
-            QLineEdit {
-                background-color: #2d2d2d;
-                border: 1px solid #3c3c3c;
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px;
-                color: white;
-            }
+                color: {colors['text_primary']};
+            }}
             """
         )
         if self.transaction:
             self.quantity_entry.setText(str(self.transaction.quantity))
         layout.addWidget(self.quantity_entry)
 
-        # Save button
+        # Separator line
+        separator = QLabel()
+        separator.setFrameShape(QLabel.HLine)
+        separator.setFrameShadow(QLabel.Sunken)
+        layout.addWidget(separator)
+
         save_button = QPushButton("Save", self)
         save_button.setStyleSheet(
             """
             QPushButton {
                 background-color: #2563eb;
                 border: none;
-                border-radius: 4px;
+                border-radius: 5px;
                 padding: 8px 16px;
                 color: white;
                 font-weight: bold;

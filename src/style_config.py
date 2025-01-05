@@ -15,6 +15,7 @@ class Theme:
 
         if is_dark:
             return {
+                "base": "black",
                 "background": "#1e1e1e",
                 "border": "#3c3c3c",
                 "card_bg": "#2d2d2d",
@@ -24,6 +25,7 @@ class Theme:
             }
         else:
             return {
+                "base": "white",
                 "background": "#f5f5f5",
                 "border": "#e0e0e0",
                 "card_bg": "#ffffff",
