@@ -55,7 +55,7 @@ class LoginWindow(QDialog):
                 border: 1px solid {colors['border']};
                 border-radius: 4px;
                 padding: 5px;
-                margin-bottom: 10px;
+                margin-bottom: 20px;
                 color: {colors['text_primary']};
             }}
             """
@@ -88,11 +88,35 @@ class LoginWindow(QDialog):
         login_button.clicked.connect(self.login)
         layout.addWidget(login_button)
 
+        autofill_button = QPushButton("Auto Fill", self)
+        autofill_button.setStyleSheet(
+            """
+            QPushButton {
+            background-color: #4caf50;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            color: white;
+            font-weight: bold;
+            }
+            QPushButton:hover {
+            background-color: #388e3c;
+            }
+            """
+        )
+        autofill_button.clicked.connect(self.autofill_credentials)
+        layout.addWidget(autofill_button)
+
         # register_button = QPushButton("Register", self)
         # register_button.clicked.connect(self.show_register_dialog)
         # layout.addWidget(register_button)
 
         self.setLayout(layout)
+
+    def autofill_credentials(self):
+        self.username_entry.setText("adminzaen")
+        self.password_entry.setText("Qeonaru209")
+        self.login()
 
     def login(self):
         username = self.username_entry.text()

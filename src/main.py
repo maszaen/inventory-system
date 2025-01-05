@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QIcon
 from src.ui.dialogs.db_setup_dialog import DatabaseSetupDialog
 from src.ui.main_window import MainWindow
-from src.config import Config, EnvConfig
+from src.config import Config
 from src.database.connection import DatabaseConnection
 from src.ui.login_window import LoginWindow
 
@@ -34,6 +34,7 @@ def get_resource_path(relative_path):
 
 
 def main():
+    Config.load_env()
     app = QApplication(sys.argv)
 
     icon_path = get_resource_path(os.path.join("assets", "icon.png"))
@@ -44,12 +45,13 @@ def main():
         os.makedirs(Config.LOG_DIR)
 
     try:
-        if not EnvConfig.CONNECTION_STRING:
+        if not Config.CONNECTION_STRING:
             setup_dialog = DatabaseSetupDialog()
-            if setup_dialog.exec() == QDialog.Rejected:
+            if setup_dialog.exec() == DatabaseSetupDialog.Rejected:
                 sys.exit(1)
-            else:
-                restart_app()
+
+            # Reload environment after setup
+            Config.load_env()
 
         _ = DatabaseConnection.get_instance()
 

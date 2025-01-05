@@ -8,7 +8,8 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 import pymongo
-from config import EnvConfig
+from config import Config
+from src.style_config import Theme
 
 
 class ChangeDatabaseDialog(QDialog):
@@ -16,17 +17,49 @@ class ChangeDatabaseDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Change Database")
         self.setModal(True)
+        self.setFixedSize(400, 120)
         self.setup_ui()
 
     def setup_ui(self):
+        colors = Theme.get_theme_colors()
         layout = QVBoxLayout(self)
 
         # Database Selection
         db_label = QLabel("Select Database:")
         self.db_combo = QComboBox()
+        self.db_combo.setStyleSheet(
+            f"""
+            QComboBox {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            QComboBox::drop-down {{
+                border: none;
+                background-color: {colors['background']};
+            }}
+            """
+        )
 
         # OK Button
         self.ok_btn = QPushButton("Change Database")
+        self.ok_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #2563eb;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #1d4ed8;
+            }
+            """
+        )
         self.ok_btn.clicked.connect(self.change_database)
 
         layout.addWidget(db_label)
@@ -38,15 +71,15 @@ class ChangeDatabaseDialog(QDialog):
 
     def load_databases(self):
         try:
-            client = pymongo.MongoClient(EnvConfig.MONGODB_URI)
+            client = pymongo.MongoClient(Config.MONGODB_URI)
             db_list = client.list_database_names()
 
             self.db_combo.clear()
             self.db_combo.addItems(db_list)
 
             # Select current database
-            if EnvConfig.DB_NAME in db_list:
-                self.db_combo.setCurrentText(EnvConfig.DB_NAME)
+            if Config.DB_NAME in db_list:
+                self.db_combo.setCurrentText(Config.DB_NAME)
 
             client.close()
 
@@ -69,7 +102,7 @@ class ChangeDatabaseDialog(QDialog):
 
             if reply == QMessageBox.Yes:
                 # Save new database name
-                EnvConfig.save_config(EnvConfig.MONGODB_URI, new_db)
+                Config.save_config(Config.MONGODB_URI, new_db)
 
                 QMessageBox.information(
                     self,

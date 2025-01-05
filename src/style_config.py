@@ -15,21 +15,25 @@ class Theme:
 
         if is_dark:
             return {
-                "base": "black",
+                "base": "#1e1e1e",
                 "background": "#1e1e1e",
                 "border": "#3c3c3c",
                 "card_bg": "#2d2d2d",
                 "text_primary": "#ffffff",
                 "text_secondary": "#888888",
                 "accent": "#2563eb",
+                "bg_disabled": "#2d2d2d",
+                "color_disabled": "#555555",
             }
         else:
             return {
-                "base": "white",
+                "base": "#f3f3f3",
                 "background": "#f5f5f5",
                 "border": "#e0e0e0",
                 "card_bg": "#ffffff",
                 "text_primary": "#000000",
                 "text_secondary": "#666666",
                 "accent": "#2563eb",
+                "bg_disabled": "#e0e0e0",
+                "color_disabled": "#a0a0a0",
             }

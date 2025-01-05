@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
 
             user_name = QLabel(self.user.full_name, self)
             user_name.setStyleSheet(
-                f"border: 0px; color: {colors['text_primary']}; font-size: 16px; font-weight: bold;"
+                f"border: 0px; color: {colors['text_secondary']}; font-size: 16px; font-weight: bold;"
             )
 
             role_label = QLabel(
@@ -167,7 +167,7 @@ class MainWindow(QMainWindow):
             header_layout.addStretch()
 
             value_label.setStyleSheet(
-                f"border: 0px; font-size: 18px; font-weight: bold; color: {colors['text_primary']};"
+                f"border: 0px; font-size: 18px; font-weight: bold; color: {colors['text_secondary']};"
             )
 
             layout.addLayout(header_layout)

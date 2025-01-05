@@ -171,29 +171,34 @@ class ProductTab(QWidget):
                     QMessageBox.critical(self, "Error", "Failed to delete product")
 
     def show_context_menu(self, position: QPoint):
+        colors = Theme.get_theme_colors()
         indexes = self.product_table.selectedIndexes()
         if indexes:
             menu = QMenu()
             menu.setStyleSheet(
-                """
-                QMenu {
-                    background-color: #1e1e1e; 
-                    border: 1px solid #3c3c3c; 
-                    border-radius: 8px; 
-                    color: white; 
-                    font-size: 12px;
-                }
-                QMenu::item {
-                    padding: 5px 25px;
-                }
-                QMenu::item:selected {
-                    background-color: #3c3c3c;
-                }
+                f"""
+                QMenu {{
+                    background-color: {colors['base']};
+                    border: 1px solid {colors['border']};
+                    border-radius: 6px;
+                    padding: 0px;
+                }}
+                QMenu::item {{
+                    padding: 4px 24px 4px 8px;
+                    color: {colors['text_secondary']};
+                    font-size: 13px;
+                    border-radius: 6px;
+                    margin: 4px 4px;
+                }}
+                QMenu::item:selected {{
+                    background-color: {colors['border']};
+                }}
                 """
             )
 
-            edit_action = QAction("Edit", self)
-            delete_action = QAction("Delete", self)
+            # Menggunakan simbol monochrome yang lebih profesional
+            edit_action = QAction("Edit Product", self)
+            delete_action = QAction("Delete Product", self)
 
             menu.addAction(edit_action)
             menu.addAction(delete_action)

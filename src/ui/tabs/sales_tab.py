@@ -184,41 +184,36 @@ class SalesTab(QWidget):
                     QMessageBox.critical(self, "Error", "Failed to delete sale")
 
     def show_context_menu(self, position: QPoint):
+        colors = Theme.get_theme_colors()
         indexes = self.sales_table.selectedIndexes()
         if indexes:
             menu = QMenu()
             menu.setStyleSheet(
-                """
-                QMenu {
-                    background-color: #1e1e1e;
-                    border: 1px solid #3c3c3c;
+                f"""
+                QMenu {{
+                    background-color: {colors['base']};
+                    border: 1px solid {colors['border']};
                     border-radius: 6px;
                     padding: 0px;
-                }
-                QMenu::item {
+                }}
+                QMenu::item {{
                     padding: 4px 24px 4px 8px;
-                    color: white;
+                    color: {colors['text_secondary']};
                     font-size: 13px;
-                    border-radius: 4px;
-                    margin: 2px 4px;
-                }
-                QMenu::item:selected {
-                    background-color: #3c3c3c;
-                }
-                QMenu::separator {
-                    height: 1px;
-                    background: #3c3c3c;
-                    margin: 4px 8px;
-                }
+                    border-radius: 6px;
+                    margin: 4px 4px;
+                }}
+                QMenu::item:selected {{
+                    background-color: {colors['border']};
+                }}
                 """
             )
 
             # Menggunakan simbol monochrome yang lebih profesional
-            edit_action = QAction("\u270E  Edit", self)  # ✎
-            delete_action = QAction("\u2716  Delete", self)  # ✖
+            edit_action = QAction("Edit Sales", self)
+            delete_action = QAction("Delete Sales", self)
 
             menu.addAction(edit_action)
-            menu.addSeparator()
             menu.addAction(delete_action)
 
             action = menu.exec(self.sales_table.viewport().mapToGlobal(position))
