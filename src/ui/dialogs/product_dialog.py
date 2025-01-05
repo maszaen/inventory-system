@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from decimal import Decimal
 from src.models.product import Product
+from src.style_config import Theme
 from src.utils.logger import Logger
 
 
@@ -21,6 +22,7 @@ class ProductDialog(QDialog):
         self.setup_dialog()
 
     def setup_dialog(self):
+        colors = Theme.get_theme_colors()
         self.setWindowTitle("Edit Product" if self.product else "Add New Product")
         self.setGeometry(0, 0, 300, 235)
         self.setWindowModality(Qt.ApplicationModal)
@@ -30,6 +32,17 @@ class ProductDialog(QDialog):
         # Name field
         layout.addWidget(QLabel("Name:"))
         self.name_entry = QLineEdit()
+        self.name_entry.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         if self.product:
             self.name_entry.setText(self.product.name)
         layout.addWidget(self.name_entry)
@@ -37,6 +50,18 @@ class ProductDialog(QDialog):
         # Price field
         layout.addWidget(QLabel("Price:"))
         self.price_entry = QLineEdit()
+        self.price_entry.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
+
         if self.product:
             self.price_entry.setText(str(self.product.price))
         layout.addWidget(self.price_entry)
@@ -44,12 +69,43 @@ class ProductDialog(QDialog):
         # Stock field
         layout.addWidget(QLabel("Stock:"))
         self.stock_entry = QLineEdit()
+        self.stock_entry.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         if self.product:
             self.stock_entry.setText(str(self.product.stock))
         layout.addWidget(self.stock_entry)
 
+        separator = QLabel()
+        separator.setFrameShape(QLabel.HLine)
+        separator.setFrameShadow(QLabel.Sunken)
+        layout.addWidget(separator)
+
         # Save button
         save_button = QPushButton("Save")
+        save_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #2563eb;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #1d4ed8;
+            }
+            """
+        )
         save_button.clicked.connect(self.save_product)
         layout.addWidget(save_button)
 

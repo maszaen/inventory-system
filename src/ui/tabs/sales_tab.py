@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QPoint
 from bson import ObjectId
+from src.style_config import Theme
 from src.ui.dialogs.sale_dialog import SaleDialog
 from src.ui.models.sales_table_model import SalesTableModel
 from src.utils.pagination import PaginationWidget
@@ -39,22 +40,31 @@ class SalesTab(QWidget):
         self.refresh_sales_list()
 
     def setup_ui(self):
+        colors = Theme.get_theme_colors()
         main_layout = QVBoxLayout(self)
 
         # Control Layout
         control_layout = QHBoxLayout()
         main_layout.addLayout(control_layout)
 
-        # Add Sale Button
-        self.add_sale_button = QPushButton("+ Add")
-        self.add_sale_button.clicked.connect(self.show_add_sale_dialog)
-        control_layout.addWidget(self.add_sale_button)
-
         # Search Label and Field
         self.search_label = QLabel("Search:")
+        self.search_label.setStyleSheet("padding: 5px")
         control_layout.addWidget(self.search_label)
 
         self.search_entry = QLineEdit()
+        self.search_entry.setPlaceholderText("Type product name...")
+        self.search_entry.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         self.search_entry.textChanged.connect(self.refresh_sales_list)
         control_layout.addWidget(self.search_entry)
 

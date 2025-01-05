@@ -5,8 +5,10 @@ from PySide6.QtWidgets import (
     QPushButton,
     QMessageBox,
     QFormLayout,
+    QLabel,
 )
 from src.models.user import UserManager
+from src.style_config import Theme
 
 
 class LoginWindow(QDialog):
@@ -17,29 +19,78 @@ class LoginWindow(QDialog):
         self.setup_window()
 
     def setup_window(self):
-        self.setWindowTitle("Login - Inventory System")
-        self.setFixedSize(300, 155)
+        colors = Theme.get_theme_colors()
+        self.setWindowTitle("Login - PyStockFlow")
+        self.setFixedSize(400, 200)
 
         layout = QVBoxLayout()
 
-        form_layout = QFormLayout()
+        # Create a vertical form layout for the form fields
+        form_layout = QVBoxLayout()
 
+        username_label = QLabel("Username:")
+        username_label.setStyleSheet(f"color: {colors['text_primary']};")
         self.username_entry = QLineEdit(self)
+        self.username_entry.setPlaceholderText("Enter username...")
+        self.username_entry.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
+
+        password_label = QLabel("Password:")
+        password_label.setStyleSheet(f"color: {colors['text_primary']};")
         self.password_entry = QLineEdit(self)
+        self.password_entry.setPlaceholderText("Enter your password...")
+        self.password_entry.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                margin-bottom: 10px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         self.password_entry.setEchoMode(QLineEdit.Password)
 
-        form_layout.addRow("Username:", self.username_entry)
-        form_layout.addRow("Password:", self.password_entry)
+        form_layout.addWidget(username_label)
+        form_layout.addWidget(self.username_entry)
+        form_layout.addWidget(password_label)
+        form_layout.addWidget(self.password_entry)
 
         layout.addLayout(form_layout)
 
         login_button = QPushButton("Login", self)
+        login_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #2563eb;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #1d4ed8;
+            }
+            """
+        )
         login_button.clicked.connect(self.login)
         layout.addWidget(login_button)
 
-        register_button = QPushButton("Register", self)
-        register_button.clicked.connect(self.show_register_dialog)
-        layout.addWidget(register_button)
+        # register_button = QPushButton("Register", self)
+        # register_button.clicked.connect(self.show_register_dialog)
+        # layout.addWidget(register_button)
 
         self.setLayout(layout)
 

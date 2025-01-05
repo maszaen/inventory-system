@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         self.menu_bar = MenuBar(self)
         self.setup_sidebar()
         self.setup_notebook()
+        self.refresh_sidebar_totals()
         self.refresh_all()
 
         if self.user:
@@ -65,6 +66,20 @@ class MainWindow(QMainWindow):
 
     def setup_sidebar(self):
         colors = Theme.get_theme_colors()
+        action_button_style = f"""
+            QPushButton {{
+                background-color: {colors['card_bg']};
+                border: 1px solid {colors['border']};
+                border-radius: 8px;
+                padding: 8px;
+                color: {colors['text_primary']};
+                text-align: left;
+                font-size: 13px;
+            }}
+            QPushButton:hover {{
+                background-color: {colors['border']};
+            }}
+        """
         sidebar_widget = QWidget(self)
         sidebar_layout = QVBoxLayout(sidebar_widget)
         sidebar_widget.setFixedWidth(300)
@@ -116,6 +131,12 @@ class MainWindow(QMainWindow):
         )
         sidebar_layout.addWidget(stats_label)
 
+        # Refresh Totals Button
+        refresh_totals_btn = QPushButton("🔄 Refresh Summary")
+        refresh_totals_btn.setStyleSheet(action_button_style)
+        refresh_totals_btn.clicked.connect(self.refresh_sidebar_totals)
+        sidebar_layout.addWidget(refresh_totals_btn)
+
         # Sales Statistics Cards
         self.totalSales = QLabel("Loading...", self)
         self.totalThisMonth = QLabel("Loading...", self)
@@ -161,20 +182,6 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(actions_label)
 
         # Action Buttons
-        action_button_style = f"""
-            QPushButton {{
-                background-color: {colors['card_bg']};
-                border: 1px solid {colors['border']};
-                border-radius: 8px;
-                padding: 8px;
-                color: {colors['text_primary']};
-                text-align: left;
-                font-size: 13px;
-            }}
-            QPushButton:hover {{
-                background-color: {colors['border']};
-            }}
-        """
 
         add_product_btn = QPushButton("➕ Add New Product")
         add_product_btn.setStyleSheet(action_button_style)
