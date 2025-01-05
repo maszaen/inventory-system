@@ -11,8 +11,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 import pymongo
 from typing import Optional
-from config import Config, EnvConfig
+from config import Config
 from models.user import UserManager
+from src.style_config import Theme
 
 
 class DatabaseSetupDialog(QDialog):
@@ -20,16 +21,28 @@ class DatabaseSetupDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Database Setup")
         self.setModal(True)
-        self.setMinimumSize(400, 300)
+        self.setFixedSize(500, 450)
         self.setup_ui()
 
     def setup_ui(self):
+        colors = Theme.get_theme_colors()
         layout = QVBoxLayout(self)
 
         # Connection String Input
         conn_layout = QVBoxLayout()
         conn_label = QLabel("MongoDB Connection String:")
         self.conn_input = QLineEdit()
+        self.conn_input.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         self.conn_input.setPlaceholderText("mongodb://username:password@host:port/")
         self.conn_input.textChanged.connect(self.validate_inputs)
         conn_layout.addWidget(conn_label)
@@ -37,6 +50,22 @@ class DatabaseSetupDialog(QDialog):
 
         # Test Connection Button
         self.test_btn = QPushButton("Test Connection")
+        self.test_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #22c55e;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                margin-bottom: 20px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #16a34a;
+            }
+            """
+        )
         self.test_btn.clicked.connect(self.test_connection)
         conn_layout.addWidget(self.test_btn)
 
@@ -44,6 +73,22 @@ class DatabaseSetupDialog(QDialog):
         db_layout = QVBoxLayout()
         db_label = QLabel("Select Database:")
         self.db_combo = QComboBox()
+        self.db_combo.setStyleSheet(
+            f"""
+            QComboBox {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                margin-bottom: 20px;
+                color: {colors['text_primary']};
+            }}
+            QComboBox::drop-down {{
+                border: none;
+                background-color: {colors['background']};
+            }}
+            """
+        )
         self.db_combo.setEnabled(False)
         self.db_combo.currentTextChanged.connect(self.validate_inputs)
         db_layout.addWidget(db_label)
@@ -56,22 +101,70 @@ class DatabaseSetupDialog(QDialog):
 
         # Username
         self.username_input = QLineEdit()
+        self.username_input.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         self.username_input.setPlaceholderText("Username")
         self.username_input.textChanged.connect(self.validate_inputs)
 
         # Password
         self.password_input = QLineEdit()
+        self.password_input.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         self.password_input.setPlaceholderText("Password")
         self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.textChanged.connect(self.validate_inputs)
 
         # Full Name
         self.fullname_input = QLineEdit()
+        self.fullname_input.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         self.fullname_input.setPlaceholderText("Full Name")
         self.fullname_input.textChanged.connect(self.validate_inputs)
 
         # Register Button
         self.register_btn = QPushButton("Register and Complete Setup")
+        self.register_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #2563eb;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #1d4ed8;
+            }
+            """
+        )
         self.register_btn.setEnabled(False)
         self.register_btn.clicked.connect(self.complete_setup)
 
@@ -117,8 +210,8 @@ class DatabaseSetupDialog(QDialog):
         self.mongo_client: Optional[pymongo.MongoClient] = None
         self.validate_inputs()
 
-        if EnvConfig.MONGODB_URI:
-            self.conn_input.setText(EnvConfig.MONGODB_URI)
+        if Config.MONGODB_URI:
+            self.conn_input.setText(Config.MONGODB_URI)
 
     def validate_inputs(self):
         """Enable/disable buttons based on input state"""
@@ -158,8 +251,6 @@ class DatabaseSetupDialog(QDialog):
 
         if reply == QMessageBox.Yes:
             try:
-                EnvConfig.save_config(uri, db_name)
-
                 Config.save_config(uri, db_name)
 
                 QMessageBox.information(
@@ -197,8 +288,8 @@ class DatabaseSetupDialog(QDialog):
             self.db_combo.setEnabled(True)
 
             # Select existing database if configured
-            if EnvConfig.DB_NAME in db_list:
-                self.db_combo.setCurrentText(EnvConfig.DB_NAME)
+            if Config.DB_NAME in db_list:
+                self.db_combo.setCurrentText(Config.DB_NAME)
 
             QMessageBox.information(self, "Success", "Connection successful!")
 
@@ -215,9 +306,8 @@ class DatabaseSetupDialog(QDialog):
             db_name = self.db_combo.currentText()
 
             # Save configuration
-            EnvConfig.save_config(uri, db_name)
-
             Config.save_config(uri, db_name)
+            Config.load_env()
 
             db = self.mongo_client[db_name]
 

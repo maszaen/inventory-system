@@ -8,7 +8,8 @@ from PySide6.QtWidgets import (
 )
 import pymongo
 
-from src.config import EnvConfig
+from src.config import Config
+from src.style_config import Theme
 
 
 class ChangeConnectionDialog(QDialog):
@@ -18,27 +19,86 @@ class ChangeConnectionDialog(QDialog):
         self.current_user = current_user
         self.setWindowTitle("Change Connection String")
         self.setModal(True)
+        self.setFixedSize(400, 235)
         self.setup_ui()
 
     def setup_ui(self):
+        colors = Theme.get_theme_colors()
         layout = QVBoxLayout(self)
 
         # Password verification
         pass_label = QLabel("Current Password:")
         self.pass_input = QLineEdit()
+        self.pass_input.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
+        self.pass_input.setPlaceholderText("Type your password to confirm...")
         self.pass_input.setEchoMode(QLineEdit.Password)
 
         # New connection string
         conn_label = QLabel("New Connection String:")
         self.conn_input = QLineEdit()
+        self.conn_input.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            """
+        )
         self.conn_input.setPlaceholderText("mongodb://username:password@host:port/")
 
         # Test connection button
         self.test_btn = QPushButton("Test Connection")
+        self.test_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #22c55e;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #16a34a;
+            }
+            """
+        )
         self.test_btn.clicked.connect(self.test_connection)
 
         # Save button
         self.save_btn = QPushButton("Save Changes")
+        self.save_btn.setStyleSheet(
+            f"""
+            QPushButton {{
+                background-color: #2563eb;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: #1d4ed8;
+            }}
+            QPushButton:disabled {{
+                background-color: {colors['bg_disabled']};
+                color: {colors['color_disabled']};
+            }}
+            """
+        )
         self.save_btn.clicked.connect(self.save_changes)
         self.save_btn.setEnabled(False)
 
@@ -89,9 +149,9 @@ class ChangeConnectionDialog(QDialog):
 
             if reply == QMessageBox.Yes:
                 # Save new connection string
-                EnvConfig.save_config(
+                Config.save_config(
                     self.conn_input.text().strip(),
-                    EnvConfig.DB_NAME,  # Keep current database
+                    Config.DB_NAME,  # Keep current database
                 )
 
                 QMessageBox.information(

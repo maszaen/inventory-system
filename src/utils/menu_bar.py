@@ -18,7 +18,8 @@ class MenuBar:
         menubar.setStyleSheet(
             f"""
             QMenuBar {{
-                background-color: {colors['card_bg']};
+                background-color: {colors['base']};
+                border-bottom: 1px solid {colors['border']};
                 color: {colors['text_primary']};
             }}
             QMenuBar::item:selected {{
