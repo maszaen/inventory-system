@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from src.config import Config
+from src.models.user import UserManager
 from src.utils.logger import Logger
 from src.models.product import ProductManager
 from src.models.transaction import TransactionManager
@@ -22,6 +23,7 @@ from src.ui.tabs.chart_tab import ChartTab
 from src.utils.calculate_totals import calculate_totals
 from PySide6.QtGui import QGuiApplication
 from src.style_config import Theme
+from src.utils.menu_bar import MenuBar
 
 
 class MainWindow(QMainWindow):
@@ -29,6 +31,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.user = user
         self.logger = Logger()
+        self.user_manager = UserManager()
         self.product_manager = ProductManager()
         self.transaction_manager = TransactionManager()
 
@@ -43,6 +46,7 @@ class MainWindow(QMainWindow):
         self.main_widget.setLayout(self.main_layout)
         self.setCentralWidget(self.main_widget)
 
+        self.menu_bar = MenuBar(self)
         self.setup_sidebar()
         self.setup_notebook()
         self.refresh_all()
@@ -210,7 +214,6 @@ class MainWindow(QMainWindow):
         notebook = QTabWidget(self)
         self.main_layout.addWidget(notebook)
 
-        # Initialize tabs
         self.product_tab = ProductTab(self, self.product_manager, self.logger)
         self.sales_tab = SalesTab(
             self,
