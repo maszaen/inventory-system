@@ -10,8 +10,7 @@ from src.style_config import Theme
 
 
 class PaginationWidget(QWidget):
-    # Signal untuk memberitahu parent widget ketika halaman berubah
-    pageChanged = Signal(int, int)  # current_page, items_per_page
+    pageChanged = Signal(int, int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -59,7 +58,6 @@ class PaginationWidget(QWidget):
         )
         self.page_size_combo.currentTextChanged.connect(self.on_page_size_changed)
 
-        # Navigation buttons style
         button_style = f"""
             QPushButton {{
                 background-color: {colors['card_bg']};
