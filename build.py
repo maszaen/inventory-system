@@ -1,7 +1,6 @@
 import os
 import shutil
 import subprocess
-from datetime import datetime
 
 
 def print_directory_tree(startpath, level=0):
