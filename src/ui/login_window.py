@@ -20,8 +20,11 @@ class LoginWindow(QDialog):
 
     def setup_window(self):
         colors = Theme.get_theme_colors()
+        btnmg = Theme.btnmg()
+        # grnbtn = Theme.green_btn()
+        form = Theme.form()
         self.setWindowTitle("Login - PyStockFlow")
-        self.setFixedSize(400, 200)
+        self.setFixedSize(400, 220)
 
         layout = QVBoxLayout()
 
@@ -32,34 +35,13 @@ class LoginWindow(QDialog):
         username_label.setStyleSheet(f"color: {colors['text_primary']};")
         self.username_entry = QLineEdit(self)
         self.username_entry.setPlaceholderText("Enter username...")
-        self.username_entry.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.username_entry.setStyleSheet(form)
 
         password_label = QLabel("Password:")
         password_label.setStyleSheet(f"color: {colors['text_primary']};")
         self.password_entry = QLineEdit(self)
         self.password_entry.setPlaceholderText("Enter your password...")
-        self.password_entry.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                margin-bottom: 20px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.password_entry.setStyleSheet(form)
         self.password_entry.setEchoMode(QLineEdit.Password)
 
         form_layout.addWidget(username_label)
@@ -70,42 +52,14 @@ class LoginWindow(QDialog):
         layout.addLayout(form_layout)
 
         login_button = QPushButton("Login", self)
-        login_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2563eb;
-                border: none;
-                border-radius: 5px;
-                padding: 8px 16px;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #1d4ed8;
-            }
-            """
-        )
+        login_button.setStyleSheet(btnmg)
         login_button.clicked.connect(self.login)
         layout.addWidget(login_button)
 
-        autofill_button = QPushButton("Auto Fill", self)
-        autofill_button.setStyleSheet(
-            """
-            QPushButton {
-            background-color: #4caf50;
-            border: none;
-            border-radius: 5px;
-            padding: 8px 16px;
-            color: white;
-            font-weight: bold;
-            }
-            QPushButton:hover {
-            background-color: #388e3c;
-            }
-            """
-        )
-        autofill_button.clicked.connect(self.autofill_credentials)
-        layout.addWidget(autofill_button)
+        # autofill_button = QPushButton("Auto Fill", self)
+        # autofill_button.setStyleSheet(grnbtn)
+        # autofill_button.clicked.connect(self.autofill_credentials)
+        # layout.addWidget(autofill_button)
 
         # register_button = QPushButton("Register", self)
         # register_button.clicked.connect(self.show_register_dialog)
@@ -113,10 +67,10 @@ class LoginWindow(QDialog):
 
         self.setLayout(layout)
 
-    def autofill_credentials(self):
-        self.username_entry.setText("adminzaen")
-        self.password_entry.setText("Qeonaru209")
-        self.login()
+    # def autofill_credentials(self):
+    #     self.username_entry.setText("adminzaen")
+    #     self.password_entry.setText("Qeonaru209")
+    #     self.login()
 
     def login(self):
         username = self.username_entry.text()
@@ -138,58 +92,6 @@ class LoginWindow(QDialog):
                     self, "Error", "Invalid username or password, please try again"
                 )
         except Exception as e:
-            QMessageBox.critical(self, "Error", str(e))
-
-    def show_register_dialog(self):
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Register New User")
-        dialog.setFixedSize(300, 175)
-
-        form_layout = QFormLayout(dialog)
-
-        self.username_entry_register = QLineEdit(dialog)
-        self.password_entry_register = QLineEdit(dialog)
-        self.password_entry_register.setEchoMode(QLineEdit.Password)
-        self.confirm_password_entry_register = QLineEdit(dialog)
-        self.confirm_password_entry_register.setEchoMode(QLineEdit.Password)
-        self.fullname_entry_register = QLineEdit(dialog)
-
-        form_layout.addRow("Username:", self.username_entry_register)
-        form_layout.addRow("Password:", self.password_entry_register)
-        form_layout.addRow("Confirm:", self.confirm_password_entry_register)
-        form_layout.addRow("Full Name:", self.fullname_entry_register)
-
-        register_button = QPushButton("Register", dialog)
-        register_button.clicked.connect(self.register)
-        form_layout.addWidget(register_button)
-
-        dialog.setLayout(form_layout)
-        dialog.exec()
-
-    def register(self):
-        username = self.username_entry_register.text()
-        password = self.password_entry_register.text()
-        confirm_password = self.confirm_password_entry_register.text()
-        full_name = self.fullname_entry_register.text()
-
-        if not all([username, password, confirm_password, full_name]):
-            QMessageBox.critical(self, "Error", "Please fill in all fields")
-            return
-
-        if password != confirm_password:
-            QMessageBox.critical(self, "Error", "Passwords do not match")
-            return
-
-        try:
-            user = self.user_manager.create_user(username, password, full_name)
-            if user:
-                QMessageBox.information(
-                    self, "Success", "User registered successfully!\nYou can now login."
-                )
-                self.close()
-            else:
-                raise ValueError("Failed to create user")
-        except ValueError as e:
             QMessageBox.critical(self, "Error", str(e))
 
     def run(self):

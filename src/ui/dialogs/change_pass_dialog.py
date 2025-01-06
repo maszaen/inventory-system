@@ -7,6 +7,8 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 
+from src.style_config import Theme
+
 
 class ChangePasswordDialog(QDialog):
     def __init__(self, parent=None, user_manager=None, current_user=None):
@@ -14,28 +16,36 @@ class ChangePasswordDialog(QDialog):
         self.user_manager = user_manager
         self.current_user = current_user
         self.setWindowTitle("Change Password")
+        self.setFixedSize(400, 305)
         self.setup_ui()
 
     def setup_ui(self):
+        btn = Theme.btn()
+        btnmg = Theme.btnmg()
+        form = Theme.form()
         layout = QVBoxLayout(self)
 
         # Current Password
         self.current_pass = QLineEdit()
+        self.current_pass.setStyleSheet(form)
         self.current_pass.setPlaceholderText("Current Password")
         self.current_pass.setEchoMode(QLineEdit.Password)
 
         # New Password
         self.new_pass = QLineEdit()
+        self.new_pass.setStyleSheet(form)
         self.new_pass.setPlaceholderText("New Password")
         self.new_pass.setEchoMode(QLineEdit.Password)
 
         # Confirm New Password
         self.confirm_pass = QLineEdit()
+        self.confirm_pass.setStyleSheet(form)
         self.confirm_pass.setPlaceholderText("Confirm New Password")
         self.confirm_pass.setEchoMode(QLineEdit.Password)
 
         # Change Button
         self.change_btn = QPushButton("Change Password")
+        self.change_btn.setStyleSheet(btnmg)
         self.change_btn.clicked.connect(self.change_password)
 
         # Add to layout

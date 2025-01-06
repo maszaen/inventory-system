@@ -33,7 +33,10 @@ class SaleDialog(QDialog):
         self.setup_dialog()
 
     def setup_dialog(self):
-        colors = Theme.get_theme_colors()
+        form = Theme.form()
+        btn = Theme.btn()
+        date = Theme.datepick()
+        cbox = Theme.cbox()
         self.setWindowTitle("Edit Sale" if self.transaction else "Add New Sale")
         self.setGeometry(100, 100, 300, 280)
         self.setWindowModality(Qt.ApplicationModal)
@@ -44,21 +47,7 @@ class SaleDialog(QDialog):
         layout.addWidget(QLabel("Date:"))
         self.date_picker = QDateEdit(self)
         self.date_picker.setCalendarPopup(True)
-        self.date_picker.setStyleSheet(
-            f"""
-            QDateEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            QDateEdit::drop-down {{
-                border: none;
-                background-color: {colors['border']};
-            }}
-            """
-        )
+        self.date_picker.setStyleSheet(date)
 
         # Set default date
         if self.transaction:
@@ -80,21 +69,7 @@ class SaleDialog(QDialog):
 
         self.product_combo = QComboBox(self)
         self.product_combo.addItems(product_names)
-        self.product_combo.setStyleSheet(
-            f"""
-            QComboBox {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            QComboBox::drop-down {{
-                border: none;
-                background-color: {colors['background']};
-            }}
-            """
-        )
+        self.product_combo.setStyleSheet(cbox)
         if self.transaction:
             self.product_combo.setCurrentText(self.transaction.product_name)
         layout.addWidget(self.product_combo)
@@ -115,17 +90,7 @@ class SaleDialog(QDialog):
         layout.addWidget(quantity_label)
 
         self.quantity_entry = QLineEdit(self)
-        self.quantity_entry.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.quantity_entry.setStyleSheet(form)
         if self.transaction:
             self.quantity_entry.setText(str(self.transaction.quantity))
         layout.addWidget(self.quantity_entry)
@@ -137,21 +102,7 @@ class SaleDialog(QDialog):
         layout.addWidget(separator)
 
         save_button = QPushButton("Save", self)
-        save_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2563eb;
-                border: none;
-                border-radius: 5px;
-                padding: 8px 16px;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #1d4ed8;
-            }
-            """
-        )
+        save_button.setStyleSheet(btn)
         save_button.clicked.connect(self.save_sale)
         layout.addWidget(save_button)
 

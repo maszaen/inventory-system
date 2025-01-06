@@ -22,7 +22,8 @@ class ProductDialog(QDialog):
         self.setup_dialog()
 
     def setup_dialog(self):
-        colors = Theme.get_theme_colors()
+        btn = Theme.btn()
+        form = Theme.form()
         self.setWindowTitle("Edit Product" if self.product else "Add New Product")
         self.setGeometry(0, 0, 300, 235)
         self.setWindowModality(Qt.ApplicationModal)
@@ -32,17 +33,7 @@ class ProductDialog(QDialog):
         # Name field
         layout.addWidget(QLabel("Name:"))
         self.name_entry = QLineEdit()
-        self.name_entry.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.name_entry.setStyleSheet(form)
         if self.product:
             self.name_entry.setText(self.product.name)
         layout.addWidget(self.name_entry)
@@ -50,17 +41,7 @@ class ProductDialog(QDialog):
         # Price field
         layout.addWidget(QLabel("Price:"))
         self.price_entry = QLineEdit()
-        self.price_entry.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.price_entry.setStyleSheet(form)
 
         if self.product:
             self.price_entry.setText(str(self.product.price))
@@ -69,17 +50,7 @@ class ProductDialog(QDialog):
         # Stock field
         layout.addWidget(QLabel("Stock:"))
         self.stock_entry = QLineEdit()
-        self.stock_entry.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.stock_entry.setStyleSheet(form)
         if self.product:
             self.stock_entry.setText(str(self.product.stock))
         layout.addWidget(self.stock_entry)
@@ -91,21 +62,7 @@ class ProductDialog(QDialog):
 
         # Save button
         save_button = QPushButton("Save")
-        save_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2563eb;
-                border: none;
-                border-radius: 5px;
-                padding: 8px 16px;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #1d4ed8;
-            }
-            """
-        )
+        save_button.setStyleSheet(btn)
         save_button.clicked.connect(self.save_product)
         layout.addWidget(save_button)
 
