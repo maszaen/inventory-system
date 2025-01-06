@@ -21,45 +21,18 @@ class ChangeDatabaseDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
-        colors = Theme.get_theme_colors()
+        cbox = Theme.cbox()
+        btn = Theme.btn()
         layout = QVBoxLayout(self)
 
         # Database Selection
         db_label = QLabel("Select Database:")
         self.db_combo = QComboBox()
-        self.db_combo.setStyleSheet(
-            f"""
-            QComboBox {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            QComboBox::drop-down {{
-                border: none;
-                background-color: {colors['background']};
-            }}
-            """
-        )
+        self.db_combo.setStyleSheet(cbox)
 
         # OK Button
         self.ok_btn = QPushButton("Change Database")
-        self.ok_btn.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2563eb;
-                border: none;
-                border-radius: 5px;
-                padding: 8px 16px;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #1d4ed8;
-            }
-            """
-        )
+        self.ok_btn.setStyleSheet(btn)
         self.ok_btn.clicked.connect(self.change_database)
 
         layout.addWidget(db_label)

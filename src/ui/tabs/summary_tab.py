@@ -26,15 +26,21 @@ class SummaryTab(QWidget):
 
     def setup_ui(self):
         colors = Theme.get_theme_colors()
+        date = Theme.datepick()
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(5)
 
-        # Date Selection Card
         date_card = QFrame(self)
         date_card.setStyleSheet(
             f"QFrame {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 2px; }}"
         )
-        date_layout = QHBoxLayout(date_card)
+        date_container = QVBoxLayout(date_card)
+
+        date_layout = QVBoxLayout()
+
+        date_container.addLayout(date_layout)
+
+        date_picker_layout = QHBoxLayout()
 
         # Start Date
         start_date_widget = QFrame()
@@ -47,21 +53,7 @@ class SummaryTab(QWidget):
         self.start_date = QDateEdit(self)
         self.start_date.setCalendarPopup(True)
         self.start_date.setDate(QDate.currentDate().addMonths(-1))
-        self.start_date.setStyleSheet(
-            f"""
-            QDateEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            QDateEdit::drop-down {{
-                border: none;
-                background-color: {colors['border']};
-            }}
-            """
-        )
+        self.start_date.setStyleSheet(date)
         start_date_layout.addWidget(start_date_label)
         start_date_layout.addWidget(self.start_date)
 
@@ -76,21 +68,7 @@ class SummaryTab(QWidget):
         self.end_date = QDateEdit(self)
         self.end_date.setCalendarPopup(True)
         self.end_date.setDate(QDate.currentDate())
-        self.end_date.setStyleSheet(
-            f"""
-            QDateEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            QDateEdit::drop-down {{
-                border: none;
-                background-color: {colors['border']};
-            }}
-            """
-        )
+        self.end_date.setStyleSheet(date)
         end_date_layout.addWidget(end_date_label)
         end_date_layout.addWidget(self.end_date)
 
@@ -137,12 +115,15 @@ class SummaryTab(QWidget):
         quick_dates_layout.addWidget(quick_dates_label)
         quick_dates_layout.addLayout(quick_dates_buttons)
 
-        # Add widgets to date layout
-        date_layout.addWidget(start_date_widget)
-        date_layout.addWidget(end_date_widget)
-        date_layout.addWidget(quick_dates_widget)
+        # Add all elements to the horizontal layout
+        date_picker_layout.addWidget(start_date_widget)
+        date_picker_layout.addWidget(end_date_widget)
+        date_picker_layout.addWidget(quick_dates_widget)
+
+        date_layout.addLayout(date_picker_layout)
 
         button_layout = QHBoxLayout()
+        button_layout.setSpacing(10)
 
         # Generate Button
         self.generate_button = QPushButton("Generate Report")
@@ -153,30 +134,33 @@ class SummaryTab(QWidget):
                 border: 0px;
                 border-radius: 4px;
                 padding: 8px 16px;
+                margin-left: 10px;
+                margin-bottom: 10px;
                 color: white;
                 font-weight: bold;
             }}
             QPushButton:hover {{
-                background-color: {colors['border']};
+                background-color: #1d4ed8;
             }}
             """
         )
         self.generate_button.clicked.connect(self.generate_summary)
 
-        # Export Button
         self.export_button = QPushButton("Export to Excel")
         self.export_button.setStyleSheet(
             f"""
             QPushButton {{
-                background-color: {colors['accent']};
+                background-color: #22c55e;
                 border: none;
                 border-radius: 4px;
                 padding: 8px 16px;
+                margin-right: 10px;
+                margin-bottom: 10px;
                 color: white;
                 font-weight: bold;
             }}
             QPushButton:hover {{
-                background-color: {colors['border']};
+                background-color: #16a34a;
             }}
             """
         )
@@ -185,13 +169,13 @@ class SummaryTab(QWidget):
         button_layout.addWidget(self.generate_button)
         button_layout.addWidget(self.export_button)
 
+        date_layout.addLayout(button_layout)
+
         # Scroll Area for Summary
         scroll_area = QScrollArea(self)
         scroll_area.setWidgetResizable(True)
         scroll_content = QWidget()
-        scroll_content.setStyleSheet(
-            f"background-color: {colors['card_bg']}; border: 0px;"
-        )
+
         scroll_layout = QVBoxLayout(scroll_content)
         self.summary_text = QTextEdit(scroll_content)
         self.summary_text.setReadOnly(True)
@@ -200,7 +184,7 @@ class SummaryTab(QWidget):
             QTextEdit {{
                 background-color: {colors['card_bg']};
                 color: {colors['text_primary']};
-                border: 1px solid {colors['border']};
+                border: none;
                 border-radius: 4px;
             }}
             """
@@ -210,7 +194,6 @@ class SummaryTab(QWidget):
 
         # Add all to main layout
         main_layout.addWidget(date_card)
-        main_layout.addLayout(button_layout)
         main_layout.addWidget(scroll_area)
 
     def set_quick_date(self, period):
@@ -299,7 +282,7 @@ class SummaryTab(QWidget):
             )
 
             if not file_name:
-                return  # User cancelled
+                return
 
             # Create workbook
             workbook = xlsxwriter.Workbook(file_name)
@@ -407,85 +390,119 @@ class SummaryTab(QWidget):
     def format_summary_report(
         self, start_date, end_date, transactions, total_amount, product_summary, trends
     ):
-        """Format the summary report with HTML styling"""
+        """Format the summary report with HTML styling and consistent spacing"""
         colors = Theme.get_theme_colors()
-
-        if not transactions:
-            # Return early with "No Data" message if no transactions
-            return f"""
-            <style>
-                body {{ font-family: Arial, sans-serif; }}
-                .header {{ color: {colors['text_primary']}; font-size: 18px; font-weight: bold; margin-bottom: 15px; }}
-                .message {{ color: {colors['text_secondary']}; font-size: 14px; text-align: center; margin-top: 20px; }}
-            </style>
-            
-            <div class="header">Summary Report ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})</div>
-            <div class="message">No transactions found for this period.</div>
-            """
 
         html = f"""
         <style>
-            body {{ font-family: Arial, sans-serif; }}
-            .header {{ color: {colors['text_primary']}; font-size: 18px; font-weight: bold; margin-bottom: 15px; }}
-            .section {{ margin-bottom: 20px; }}
-            .subheader {{ color: {colors['text_secondary']}; font-size: 14px; margin: 10px 0; }}
-            .data {{ color: {colors['text_primary']}; margin-left: 20px; }}
-            .highlight {{ color: {colors['accent']}; font-weight: bold; }}
+            body {{ 
+                font-family: Arial, sans-serif; 
+                margin: 0; 
+                padding: 20px; 
+                background-color: #f9f9f9; 
+            }}
+            .header {{ 
+                color: {colors['text_secondary']}; 
+                font-size: 19px; 
+                font-weight: bold; 
+                margin-bottom: 20px; 
+            }}
+            .section {{ 
+                margin-bottom: 30px; 
+                padding-bottom: 10px; 
+                border-bottom: 1px solid {colors['text_secondary']}; 
+            }}
+            .subheader {{ 
+                color: {colors['text_secondary']}; 
+                font-size: 16px; 
+                margin-bottom: 10px; 
+                font-weight: bold;
+            }}
+            .data {{ 
+                color: {colors['text_primary']}; 
+                margin-left: 20px;
+                margin-bottom: 20px;
+                line-height: 1; 
+            }}
+            .highlight {{ 
+                color: {colors['accent']}; 
+                font-weight: bold;
+            }}
+            .transparent {{
+                background-color: transparent;
+                color: transparent;
+                border: none;
+            }}
         </style>
         
         <div class="header">Summary Report ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})</div>
-        
+        """
+
+        if not transactions:
+            return (
+                html
+                + f"""
+            <div class="section">
+                <div class="subheader">No Data Available</div>
+                <div class="data">No transactions found for this period.</div>
+            </div>
+            """
+            )
+
+        html += f"""
         <div class="section">
-            <div class="subheader">Overview</div>
+            <div class="subheader">- Overview</div>
             <div class="data">
                 Total Transactions: <span class="highlight">{len(transactions)}</span><br>
                 Total Revenue: <span class="highlight">Rp{total_amount:,.2f}</span><br>
-                Average Transaction Value: <span class="highlight">Rp{(total_amount / len(transactions) if transactions else 0):,.2f}</span>
+                Average Transaction Value: <span class="highlight">Rp{(total_amount / len(transactions)):,.2f}</span>
             </div>
         </div>
         """
 
-        # Hanya tampilkan top products jika ada data
-        if trends.get("top_products"):
-            html += f"""
-            <div class="section">
-                <div class="subheader">Top Selling Products</div>
-                <div class="data">
-            """
-            for product, quantity in trends["top_products"]:
-                html += (
-                    f"{product}: <span class='highlight'>{quantity}</span> units<br>"
-                )
-            html += "</div></div>"
-
-        # Hanya tampilkan sales analysis jika ada peak day
-        if trends.get("peak_day", {}).get("date"):
-            html += f"""
-            <div class="section">
-                <div class="subheader">Sales Analysis</div>
-                <div class="data">
+        sections = [
+            {
+                "condition": trends.get("top_products"),
+                "subheader": "- Top Selling Products",
+                "data": "".join(
+                    f"{product}: <span class='highlight'>{quantity}</span> units"
+                    + ("<br>" if i < len(trends["top_products"]) - 1 else "")
+                    for i, (product, quantity) in enumerate(trends["top_products"])
+                ),
+            },
+            {
+                "condition": trends.get("peak_day", {}).get("date"),
+                "subheader": "- Sales Analysis",
+                "data": f"""
                     Peak Sales Day: <span class="highlight">{trends['peak_day']['date']}</span><br>
                     Peak Day Revenue: <span class="highlight">Rp{trends['peak_day']['amount']:,.2f}</span><br>
                     Growth Rate: <span class="highlight">{trends['growth_rate']:.1f}%</span>
-                </div>
-            </div>
-            """
-
-        # Hanya tampilkan product summary jika ada data
-        if product_summary:
-            html += f"""
-            <div class="section">
-                <div class="subheader">Detailed Product Summary</div>
-                <div class="data">
-            """
-            for product_name, data in product_summary.items():
-                if data["quantity"] > 0:  # Hanya tampilkan produk yang terjual
-                    html += f"""
-                    <br><b>{product_name}</b><br>
+                """,
+            },
+            {
+                "condition": product_summary,
+                "subheader": "- Detailed Product Summary",
+                "data": "".join(
+                    f"""
+                    <b>{product_name}</b><br>
                     Quantity Sold: <span class="highlight">{data['quantity']}</span><br>
                     Revenue: <span class="highlight">Rp{data['total']:,.2f}</span><br>
-                    Average Price: <span class="highlight">Rp{(data['total'] / data['quantity'] if data['quantity'] else 0):,.2f}</span><br>
+                    Average Price: <span class="highlight mb-10">Rp{(data['total'] / data['quantity']):,.2f}</span><br>
+                    <span class="transparent">-</span><br>
                     """
-            html += "</div></div>"
+                    for product_name, data in product_summary.items()
+                    if data["quantity"] > 0
+                ),
+            },
+        ]
+
+        for section in sections:
+            if section["condition"]:
+                html += f"""
+                <div class="section">
+                    <div class="subheader">{section['subheader']}</div>
+                    <div class="data">{section['data']}</div>
+                </div>
+                """
 
         return html

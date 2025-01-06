@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
         self.user_manager = UserManager()
         self.product_manager = ProductManager()
         self.transaction_manager = TransactionManager()
+        self.config = Config()
 
         self.is_dark_mode = Theme.detect_system_theme()
 

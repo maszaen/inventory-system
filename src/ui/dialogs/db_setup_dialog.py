@@ -25,24 +25,18 @@ class DatabaseSetupDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
-        colors = Theme.get_theme_colors()
+        btn = Theme.btn()
+        txtbtn = Theme.txt_btn()
+        cbox = Theme.cbox()
+        grnbtn = Theme.green_btn()
+        form = Theme.form()
         layout = QVBoxLayout(self)
 
         # Connection String Input
         conn_layout = QVBoxLayout()
         conn_label = QLabel("MongoDB Connection String:")
         self.conn_input = QLineEdit()
-        self.conn_input.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.conn_input.setStyleSheet(form)
         self.conn_input.setPlaceholderText("mongodb://username:password@host:port/")
         self.conn_input.textChanged.connect(self.validate_inputs)
         conn_layout.addWidget(conn_label)
@@ -50,22 +44,7 @@ class DatabaseSetupDialog(QDialog):
 
         # Test Connection Button
         self.test_btn = QPushButton("Test Connection")
-        self.test_btn.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #22c55e;
-                border: none;
-                border-radius: 5px;
-                padding: 8px 16px;
-                margin-bottom: 20px;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #16a34a;
-            }
-            """
-        )
+        self.test_btn.setStyleSheet(grnbtn)
         self.test_btn.clicked.connect(self.test_connection)
         conn_layout.addWidget(self.test_btn)
 
@@ -73,22 +52,7 @@ class DatabaseSetupDialog(QDialog):
         db_layout = QVBoxLayout()
         db_label = QLabel("Select Database:")
         self.db_combo = QComboBox()
-        self.db_combo.setStyleSheet(
-            f"""
-            QComboBox {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                margin-bottom: 20px;
-                color: {colors['text_primary']};
-            }}
-            QComboBox::drop-down {{
-                border: none;
-                background-color: {colors['background']};
-            }}
-            """
-        )
+        self.db_combo.setStyleSheet(cbox)
         self.db_combo.setEnabled(False)
         self.db_combo.currentTextChanged.connect(self.validate_inputs)
         db_layout.addWidget(db_label)
@@ -101,70 +65,26 @@ class DatabaseSetupDialog(QDialog):
 
         # Username
         self.username_input = QLineEdit()
-        self.username_input.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.username_input.setStyleSheet(form)
         self.username_input.setPlaceholderText("Username")
         self.username_input.textChanged.connect(self.validate_inputs)
 
         # Password
         self.password_input = QLineEdit()
-        self.password_input.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.password_input.setStyleSheet(form)
         self.password_input.setPlaceholderText("Password")
         self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.textChanged.connect(self.validate_inputs)
 
         # Full Name
         self.fullname_input = QLineEdit()
-        self.fullname_input.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: {colors['background']};
-                border: 1px solid {colors['border']};
-                border-radius: 4px;
-                padding: 5px;
-                color: {colors['text_primary']};
-            }}
-            """
-        )
+        self.fullname_input.setStyleSheet(form)
         self.fullname_input.setPlaceholderText("Full Name")
         self.fullname_input.textChanged.connect(self.validate_inputs)
 
         # Register Button
         self.register_btn = QPushButton("Register and Complete Setup")
-        self.register_btn.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2563eb;
-                border: none;
-                border-radius: 5px;
-                padding: 8px 16px;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #1d4ed8;
-            }
-            """
-        )
+        self.register_btn.setStyleSheet(btn)
         self.register_btn.setEnabled(False)
         self.register_btn.clicked.connect(self.complete_setup)
 
@@ -180,20 +100,7 @@ class DatabaseSetupDialog(QDialog):
         login_link = QPushButton("Skip to Login")
         login_link.setFlat(True)
         login_link.setCursor(Qt.PointingHandCursor)
-        login_link.setStyleSheet(
-            """
-            QPushButton {
-                border: none;
-                color: #2563eb;
-                text-decoration: underline;
-                padding: 0px;
-                font-size: 13px;
-            }
-            QPushButton:hover {
-                color: #1d4ed8;
-            }
-        """
-        )
+        login_link.setStyleSheet(txtbtn)
         login_link.clicked.connect(self.skip_to_login)
 
         login_layout.addWidget(login_label)

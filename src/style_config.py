@@ -37,3 +37,175 @@ class Theme:
                 "bg_disabled": "#e0e0e0",
                 "color_disabled": "#a0a0a0",
             }
+
+    @staticmethod
+    def form():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QLineEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+        """
+
+    @staticmethod
+    def btn():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QPushButton {{
+                background-color: #2563eb;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: #1d4ed8;
+            }}
+            QPushButton:disabled {{
+                background-color: {colors['bg_disabled']};
+                color: {colors['color_disabled']};
+            }}
+        """
+
+    @staticmethod
+    def btnmg():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QPushButton {{
+                background-color: #2563eb;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                margin-top: 20px;
+                color: white;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: #1d4ed8;
+            }}
+            QPushButton:disabled {{
+                background-color: {colors['bg_disabled']};
+                color: {colors['color_disabled']};
+            }}
+        """
+
+    @staticmethod
+    def border_btn():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 2px solid {colors['text_secondary']};
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: {colors['text_secondary']};
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: {colors['background']};
+                border: 2px solid {colors['text_primary']};
+                color: {colors['text_primary']};
+            }}
+            QPushButton:disabled {{
+                border-color: {colors['color_disabled']};
+                color: {colors['color_disabled']};
+            }}
+        """
+
+    @staticmethod
+    def border_btn_sec():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 1px solid {colors['text_secondary']};
+                border-radius: 5px;
+                padding: 5px 16px;
+                color: {colors['text_secondary']};
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['text_primary']};
+                color: {colors['text_primary']};
+            }}
+            QPushButton:disabled {{
+                border-color: {colors['color_disabled']};
+                color: {colors['color_disabled']};
+            }}
+        """
+
+    @staticmethod
+    def green_btn():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QPushButton {{
+                background-color: #22c55e;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: #16a34a;
+            }}
+            QPushButton:disabled {{
+                background-color: {colors['bg_disabled']};
+                color: {colors['color_disabled']};
+            }}
+        """
+
+    @staticmethod
+    def txt_btn():
+        return """
+            QPushButton {
+                border: none;
+                color: #2563eb;
+                text-decoration: underline;
+                padding: 0px;
+                font-size: 13px;
+            }
+            QPushButton:hover {
+                color: #1d4ed8;
+            }
+        """
+
+    @staticmethod
+    def cbox():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QComboBox {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            QComboBox::drop-down {{
+                border: none;
+                background-color: {colors['background']};
+            }}
+        """
+
+    @staticmethod
+    def datepick():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QDateEdit {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+            }}
+            QDateEdit::drop-down {{
+                border: none;
+                background-color: {colors['border']};
+            }}
+        """

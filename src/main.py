@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -7,7 +6,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from PySide6.QtWidgets import (
     QApplication,
     QMessageBox,
-    QDialog,
 )
 from PySide6.QtGui import QIcon
 from src.ui.dialogs.db_setup_dialog import DatabaseSetupDialog
@@ -17,15 +15,8 @@ from src.database.connection import DatabaseConnection
 from src.ui.login_window import LoginWindow
 
 
-def restart_app():
-    subprocess.Popen([sys.executable] + sys.argv)
-    sys.exit()
-
-
 def get_resource_path(relative_path):
-    """Get absolute path to resource for PyInstaller"""
     if hasattr(sys, "_MEIPASS"):
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     else:
         base_path = os.path.abspath(".")
@@ -37,7 +28,7 @@ def main():
     Config.load_env()
     app = QApplication(sys.argv)
 
-    icon_path = get_resource_path(os.path.join("assets", "icon.png"))
+    icon_path = get_resource_path(os.path.join("assets", "icon.ico"))
     app_icon = QIcon(icon_path)
     app.setWindowIcon(app_icon)
 
