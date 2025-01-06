@@ -1,9 +1,11 @@
-# PyStockFlow v4.0
+# PyStockFlow Docs v5.0
 > Developed and Maintained by Zaeni Ahmad __(maszaen)__
 
-Sistem manajemen inventori dan penjualan dengan MongoDB Atlas Database.
+_Catatan: Aplikasi ini sudah dibungkus menjadi file exe menggunakan pyinstaller, jika ingin mencoba aplikasi ini silakan tonton dokumentasinya terlebih dahulu (dokumentasi belum dibuat)._ <br/>
+_Lalu untuk mencoba aplikasinya bisa download file exe pada **repository relases** yang terbaru atau bisa clone project ini (tanpa harus build aplikasi)_
 
 ## Arsitektur
+
 - PyQt (pyside6) GUI
 - MongoDB Atlas
 - Native Python
@@ -37,58 +39,94 @@ cd inventory-system
 pip install -r requirements.txt
 ```
 
-3. Setup MongoDB:
-   - Buat akun di [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-   - Buat cluster baru
-   - Dapatkan connection string
-   - Whitelist IP address Anda
-   - Jika belum paham, bisa cek dokumentasi langsung dari mongodb untuk setup database
-
-4. Buat file .env di root folder:
-```
-MONGODB_URI=<Isi dengan koneksi string mongodb>
-DB_NAME=<Isi dengan nama database sesuai yang kamu inginkan>
-```
-
 ## Struktur Direktori
 
 ```
-inventory_system/
-├── src/
-│   ├── database/       # Koneksi database
-│   ├── models/         # Model data
-│   ├── ui/             # User interface
-│   │   ├── dialogs/    # Dialog windows
-│   │   └── tabs/       # Tab components
-│   └── utils/          # Utility functions
-├── logs/               # Log files
-└── config/             # Konfigurasi
+├── .gitignore
+├── build.py
+├── inventory.spec
+├── requirements.txt
+├── logs/
+├── assets/
+│   └── icon.ico
+└── src/
+    ├── database/
+    │   ├── __init__.py
+    │   └── connection.py
+    ├── models/
+    │   ├── __init__.py
+    │   ├── product.py
+    │   ├── transaction.py
+    │   └── user.py
+    ├── ui/
+    │   ├── __init__.py
+    │   ├── dialogs/
+    │   │   ├── change_conn_str.py
+    │   │   ├── change_db_dialog.py
+    │   │   ├── change_pass_dialog.py
+    │   │   ├── db_setup_dialog.py
+    │   │   ├── env_path_dialog.py
+    │   │   ├── product_dialog.py
+    │   │   ├── register_dialog.py
+    │   │   └── sale_dialog.py
+    │   ├── login_window.py
+    │   ├── main_window.py
+    │   ├── models/
+    │   │   ├── product_table_model.py
+    │   │   ├── sales_table_model.py
+    │   │   └── __init__.py
+    │   ├── tabs/
+    │   │   ├── chart_tab.py
+    │   │   ├── product_tab.py
+    │   │   ├── sales_tab.py
+    │   │   └── summary_tab.py
+    ├── utils/
+    │   ├── __init__.py
+    │   ├── calculate_totals.py
+    │   ├── logger.py
+    │   ├── manifest_handler.py
+    │   ├── menu_bar.py
+    │   ├── pagination.py
+    ├── __init__.py
+    ├── style_config.py
+    ├── main.py
+    └── config.py
+
 ```
 
-## Panduan Penggunaan
+## Panduan Penggunaan Singkat
 
 1. Jalankan aplikasi:
 ```bash
 python -m src.main
 ```
 
-2. Login/Register:
+2. Setup MongoDB:
+   - Buat akun di [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+   - Buat cluster baru
+   - Buat database baru, dengan collection pertama users, lalu klik create database
+   - Ke tab Cluster, klik Connect pada cluster, lalu pilih drivers, lalu Copy koneksi string
+   - Whitelist IP address
+   - Jika koneksi string sudah ada, bisa masukkan ke setup database aplikasi pada window awal, lalu pilih database
+   - Jika belum paham, bisa cek dokumentasi langsung dari mongodb untuk setup database [MongoDB Documentation](https://www.mongodb.com/docs/)
+   
+3. Login/Register:
    - Login dengan akun yang sudah ada, atau
    - Klik "Register" untuk membuat akun baru
 
-3. Manajemen Produk:
+4. Manajemen Produk:
    - Klik tab "Products"
    - Gunakan tombol "Add Product" untuk menambah produk
    - Klik "Edit" atau "Delete" untuk memodifikasi produk
    - Gunakan search box untuk mencari produk
 
-4. Transaksi Penjualan:
+5. Transaksi Penjualan:
    - Klik tab "Sales"
    - Klik "Add Sale" untuk transaksi baru
    - Pilih produk dan masukkan jumlah
    - Stok akan otomatis terupdate
 
-5. Melihat Summary:
+6. Melihat Summary:
    - Klik tab "Summary"
    - Pilih range tanggal
    - Klik "Generate Summary"
@@ -106,22 +144,22 @@ python -m src.main
 
 ## Troubleshooting
 
-1. Koneksi Database:
+Masalah biasanya pada koneksi database, coba lakukan cara berikut ini:
+
    - Pastikan connection string benar
    - Cek IP di MongoDB apakah sudah di-whitelist
    - Pastikan internet aktif
 
-2. Login Issues:
-   - Cek username dan password
-   - Pastikan sudah register
+jika koneksi masih gagal, coba tambahkan nama database default setelah cluster url, contoh: <br/>
+```mongodb+srv://<db_username>:<db_password>@<cluster-url>/?retryWrites=true&w=majority&appName=<appName>```
 
-3. Error Log:
-   - Cek file log di folder logs/
-   - Format: inventory_YYYYMMDD.log
+menjadi seperti ini: <br/>
+```mongodb+srv://<db_username>:<db_password>@<cluster-url>/<db_name>?retryWrites=true&w=majority&appName=<appName>```
 
 ## Fitur Update v5.0
 
 1. Cloud Integration:
+
    - Migrasi ke MongoDB
    - Multi-user support
    - Real-time data sync
@@ -129,12 +167,25 @@ python -m src.main
 2. Authentication:
    - Sistem login
    - User registration
-   - Password hashing dengan bcrypt 
+   - Password hashing dengan bcrypt
 
-3. UI Improvements:
+3. UI Improvements: 
+   - Migrasi dari Tkinter ke PyQt6 / PySide6
+   - UI lebih fleksibel dan mudah didesain atau dimaintenance
    - Improved search
    - Better error handling
    - Auto-refresh data
+
+4. Database Setup: 
+   - Fungsi setup database saat pertama kali aplikasi dijalankan
+   - Trigger setup database hanya jika file .env belum ada, artinya jika sudah setup, tidak perlu setup lagi
+
+5. Menu Tambahan:
+   - Reset password
+   - Reset connection string
+   - Change database
+   - Change connection string
+   - Refresh summary
 
 ## Contributing
 
