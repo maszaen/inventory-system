@@ -1,5 +1,6 @@
 from PySide6.QtGui import QPalette
 from PySide6.QtWidgets import QApplication
+from PySide6.QtCharts import QChart
 
 
 class Theme:
@@ -37,6 +38,14 @@ class Theme:
                 "bg_disabled": "#e0e0e0",
                 "color_disabled": "#a0a0a0",
             }
+
+    @staticmethod
+    def get_chart_theme():
+        is_dark = Theme.detect_system_theme()
+        if is_dark:
+            return QChart.ChartThemeDark
+        else:
+            return QChart.ChartThemeLight
 
     @staticmethod
     def form():

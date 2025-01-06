@@ -26,12 +26,15 @@ class ChartTab(QWidget):
         layout = QVBoxLayout(self)
         layout.setSpacing(5)
 
-        # Control Card
-        control_card = QFrame(self)
-        control_card.setStyleSheet(
+        # Control and Chart Card combined
+        control_chart_card = QFrame(self)
+        control_chart_card.setStyleSheet(
             f"QFrame {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 2px; }}"
         )
-        control_layout = QHBoxLayout(control_card)
+        control_chart_layout = QVBoxLayout(control_chart_card)
+
+        # Control Layout
+        control_layout = QHBoxLayout()
 
         # Year Selection
         year_widget = QFrame()
@@ -76,32 +79,34 @@ class ChartTab(QWidget):
         control_layout.addWidget(year_widget)
         control_layout.addStretch()
 
+        # Add control layout to the combined control and chart card
+        control_chart_layout.addLayout(control_layout)
+
         # Chart Container
-        chart_container = QFrame(self)
-        chart_container.setStyleSheet(
-            f"QFrame {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 15px; }}"
-        )
-        chart_layout = QVBoxLayout(chart_container)
+        chart_layout = QVBoxLayout()
 
         # Create Chart
         self.chart_view = self.setup_chart()
         chart_layout.addWidget(self.chart_view)
 
-        # Add to main layout
-        layout.addWidget(control_card)
-        layout.addWidget(chart_container, 1)  # 1 is stretch factor
+        # Add chart layout to the combined control and chart card
+        control_chart_layout.addLayout(chart_layout)
+
+        # Add the combined control and chart card to main layout
+        layout.addWidget(control_chart_card)
 
         # Initial chart update
         self.update_chart()
 
     def setup_chart(self):
         colors = Theme.get_theme_colors()
+        chart_theme = Theme.get_chart_theme()
         # Create Chart
         chart = QChart()
         chart.setBackgroundBrush(Qt.transparent)
         chart.setAnimationOptions(QChart.SeriesAnimations)
         chart.legend().setVisible(False)
-        chart.setTheme(QChart.ChartThemeDark)
+        chart.setTheme(chart_theme)
 
         # Create Axes
         self.axis_x = QDateTimeAxis()
@@ -120,6 +125,9 @@ class ChartTab(QWidget):
         # Create Chart View
         chart_view = QChartView(chart)
         chart_view.setRenderHint(QPainter.Antialiasing)
+        chart_view.setStyleSheet(
+            f"QChartView {{ background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 2px; }}"
+        )
 
         return chart_view
 
@@ -143,13 +151,12 @@ class ChartTab(QWidget):
         series = QLineSeries()
         series.setName("Monthly Profit")
 
-        # Add data points for all months (including 0 for months without transactions)
         min_value = float("inf")
         max_value = float("-inf")
 
         for month in range(1, 13):
-            date = datetime(selected_year, month, 15)  # middle of month
-            timestamp = int(datetime.timestamp(date) * 1000)  # convert to milliseconds
+            date = datetime(selected_year, month, 15)
+            timestamp = int(datetime.timestamp(date) * 1000)
             value = monthly_profits.get(month, 0)
 
             series.append(timestamp, value)
