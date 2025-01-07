@@ -17,12 +17,13 @@ from src.ui.login_window import LoginWindow
 
 def get_resource_path(relative_path):
     if getattr(sys, "frozen", False):
-        # Nuitka
+        # production
         base_path = os.path.join(os.path.dirname(sys.executable), "assets")
     else:
         # development
-        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets"))
-
+        base_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../assets")
+        )
     return os.path.join(base_path, relative_path)
 
 
