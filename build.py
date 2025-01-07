@@ -28,8 +28,9 @@ def build():
         "--include-module=src.ui",
         "--include-module=src.utils",
         "--include-module=src.database",
-        # Resource handling
-        f"--include-data-files={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}=assets/icon.ico",
+        # Resource handling# Di nuitka_build.py, tambahkan opsi ini:
+        f"--include-data-files={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}=icon.ico",
+        # f"--include-data-files={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}=assets/icon.ico",
         f"--include-data-dir={os.path.join(MAIN_PROJECT, 'assets')}=assets/",
         f"--include-data-dir={os.path.join(MAIN_PROJECT, 'logs')}=logs/",
         f"--include-data-files={os.path.join(MAIN_PROJECT, 'src', 'config.py')}=src/config.py",
@@ -50,8 +51,8 @@ def build():
     ]
 
     try:
-        print("Starting Nuitka build...")
-        print("This may take several minutes...")
+        print("Starting build...")
+        print("Please wait...")
 
         result = subprocess.run(
             nuitka_command, capture_output=True, text=True, check=True
