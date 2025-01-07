@@ -143,17 +143,20 @@ python -m src.main
 
 ## Troubleshooting
 
-Masalah biasanya pada koneksi database, coba lakukan cara berikut ini:
-
+Masalah biasanya pada koneksi database, coba lakukan cara berikut ini: <br/>
+### Hal yang perlu diperhatikan:
+   - Pastikan internet aktif
    - Pastikan connection string benar
    - Cek IP di MongoDB apakah sudah di-whitelist
-   - Pastikan internet aktif
 
-jika koneksi masih gagal, coba tambahkan nama database default setelah cluster url, contoh: <br/>
-```mongodb+srv://<db_username>:<db_password>@<cluster-url>/?retryWrites=true&w=majority&appName=<appName>```
+Jika koneksi masih gagal, coba tambahkan nama database default setelah cluster url, contoh: <br/>
+```bash
+Sebelum:
+mongodb+srv://<db_username>:<db_password>@<cluster-url>/?retryWrites=true&w=majority&appName=<appName>
 
-menjadi seperti ini: <br/>
-```mongodb+srv://<db_username>:<db_password>@<cluster-url>/<db_name>?retryWrites=true&w=majority&appName=<appName>```
+Sesudah:
+mongodb+srv://<db_username>:<db_password>@<cluster-url>/<db_name>?retryWrites=true&w=majority&appName=<appName>
+```
 
 ## Fitur Update v5.0
 
@@ -197,6 +200,6 @@ Untuk berkontribusi:
 
 ## Contact
 
-Untuk pertanyaan dan dukungan:
+Untuk saran dan pertanyaan bisa melalui:
 - Email: zaeni@students.amikom.ac.id
-- GitHub Issues: [Create new issue](https://github.com/maszaen/inventory-system/issues)
+- GitHub Issues: [Go to repository issues](https://github.com/maszaen/inventory-system/issues)

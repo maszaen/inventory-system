@@ -17,25 +17,13 @@ from src.ui.login_window import LoginWindow
 
 def get_resource_path(relative_path):
     if getattr(sys, "frozen", False):
-        # Runs in Nuitka bundle
+        # Nuitka
         base_path = os.path.join(os.path.dirname(sys.executable), "assets")
     else:
-        # Runs in development
+        # development
         base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets"))
 
     return os.path.join(base_path, relative_path)
-
-
-def main():
-    Config.load_env()
-    app = QApplication(sys.argv)
-
-    # Simplified icon loading
-    icon_path = get_resource_path("icon.ico")
-    app_icon = QIcon(icon_path)
-    app.setWindowIcon(app_icon)
-
-    # ... rest of your code
 
 
 def main():
