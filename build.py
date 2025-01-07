@@ -1,75 +1,82 @@
 import os
-import shutil
+import sys
 import subprocess
 
 
-def print_directory_tree(startpath, level=0):
-    """Print directory tree structure"""
-    for item in os.listdir(startpath):
-        if item in ["build", "dist", "__pycache__", ".git"]:
-            continue
-        path = os.path.join(startpath, item)
-        print("  " * level + "|--", item)
-        if os.path.isdir(path):
-            print_directory_tree(path, level + 1)
+def build():
+    MAIN_PROJECT = os.path.abspath(os.path.dirname(__file__))
+    MAIN_SCRIPT = os.path.join(MAIN_PROJECT, "src", "main.py")
+    OUTPUT_DIR = os.path.join(MAIN_PROJECT, "dist")
 
+    nuitka_command = [
+        "python",
+        "-m",
+        "nuitka",
+        "--standalone",
+        "--onefile",
+        "--windows-console-mode=disable",
+        "--enable-plugin=pyside6",
+        # Include packages
+        "--include-package=src",
+        "--include-package=PySide6",
+        "--include-package=pymongo",
+        "--include-package=bcrypt",
+        "--include-package=dotenv",
+        "--include-package=xlsxwriter",
+        # Include project modules
+        "--include-module=src.models",
+        "--include-module=src.ui",
+        "--include-module=src.utils",
+        "--include-module=src.database",
+        # Resource handling
+        f"--include-data-files={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}=assets/icon.ico",
+        f"--include-data-dir={os.path.join(MAIN_PROJECT, 'assets')}=assets/",
+        f"--include-data-dir={os.path.join(MAIN_PROJECT, 'logs')}=logs/",
+        f"--include-data-files={os.path.join(MAIN_PROJECT, 'src', 'config.py')}=src/config.py",
+        f"--include-data-files={os.path.join(MAIN_PROJECT, 'src', 'style_config.py')}=src/style_config.py",
+        # Icon configurations
+        f"--windows-icon-from-ico={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}",
+        "--windows-company-name=Amikom",
+        "--windows-product-name=PyStockFlow",
+        "--windows-file-version=2.0.0",
+        "--windows-product-version=5.0.0",
+        # Output configuration
+        f"--output-dir={OUTPUT_DIR}",
+        "--output-filename=PyStockFlow.exe",
+        "--remove-output",
+        "--assume-yes-for-downloads",
+        # Main script
+        MAIN_SCRIPT,
+    ]
 
-def build_app():
     try:
-        # Get absolute path to the directory containing build.py
-        current_dir = os.path.abspath(os.path.dirname(__file__))
-        print("\nDebug Information:")
-        print(f"Current directory: {current_dir}")
+        print("Starting Nuitka build...")
+        print("This may take several minutes...")
 
-        print("\nDirectory structure:")
-        print_directory_tree(current_dir)
-
-        # Check main.py location
-        main_path = os.path.join(current_dir, "src", "main.py")
-        print(f"\nChecking main.py at: {main_path}")
-        print(f"main.py exists: {os.path.exists(main_path)}")
-
-        if not os.path.exists(main_path):
-            # Try to find main.py
-            print("\nSearching for main.py...")
-            for root, dirs, files in os.walk(current_dir):
-                if "main.py" in files:
-                    found_path = os.path.join(root, "main.py")
-                    print(f"Found main.py at: {found_path}")
-
-        # Define directories
-        build_dir = os.path.join(current_dir, "build")
-        dist_dir = os.path.join(current_dir, "dist")
-        output_dir = os.path.join(current_dir, "output")
-        spec_file = os.path.join(current_dir, "inventory.spec")
-
-        # Clean previous builds
-        for dir in [build_dir, dist_dir, output_dir]:
-            if os.path.exists(dir):
-                shutil.rmtree(dir)
-        os.makedirs(output_dir)
-
-        # Run PyInstaller
-        print("\nRunning PyInstaller...")
         result = subprocess.run(
-            ["pyinstaller", spec_file], capture_output=True, text=True, cwd=current_dir
+            nuitka_command, capture_output=True, text=True, check=True
         )
 
         if result.stdout:
-            print("\nPyInstaller Output:")
+            print("\nBuild Output:")
             print(result.stdout)
 
         if result.stderr:
-            print("\nPyInstaller Errors:")
+            print("\nBuild Warnings/Errors:")
             print(result.stderr)
 
-        if result.returncode != 0:
-            raise Exception(f"PyInstaller failed with return code {result.returncode}")
+        print("\nBuild completed successfully!")
+        print(f"Executable can be found in: {OUTPUT_DIR}")
 
+    except subprocess.CalledProcessError as e:
+        print(f"Build failed with error code {e.returncode}")
+        print("\nError output:")
+        print(e.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"\nError during build: {str(e)}")
-        raise
+        print(f"An unexpected error occurred: {str(e)}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    build_app()
+    build()

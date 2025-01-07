@@ -41,7 +41,6 @@ def main():
             if setup_dialog.exec() == DatabaseSetupDialog.Rejected:
                 sys.exit(1)
 
-            # Reload environment after setup
             Config.load_env()
 
         _ = DatabaseConnection.get_instance()

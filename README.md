@@ -17,8 +17,7 @@ _Lalu untuk mencoba aplikasinya bisa download file exe pada **repository relases
 - Pencatatan transaksi penjualan
 - Pencarian produk dan transaksi
 - Laporan summary berdasarkan periode
-- Cloud database dengan MongoDB
-- Logging aktivitas sistem
+- Cloud database dengan MongoDB Atlas
 
 ## Alat yang Dibutuhkan
 

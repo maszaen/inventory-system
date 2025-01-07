@@ -12,7 +12,6 @@ class Config:
     WINDOW_HEIGHT = 800
     APP_VERSION = "5.0"
 
-    # Initialize manifest handler
     manifest = ManifestHandler(BASE_DIR)
     ENV_FILE = manifest.get_env_path()
 
