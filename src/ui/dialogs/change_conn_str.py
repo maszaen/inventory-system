@@ -84,11 +84,9 @@ class ChangeConnectionDialog(QDialog):
 
     def save_changes(self):
         try:
-            # Verify password again for security
             if not self.current_user.check_password(self.pass_input.text()):
                 raise ValueError("Incorrect password")
 
-            # Konfirmasi perubahan
             reply = QMessageBox.question(
                 self,
                 "Confirm Change",
@@ -98,10 +96,9 @@ class ChangeConnectionDialog(QDialog):
             )
 
             if reply == QMessageBox.Yes:
-                # Save new connection string
                 Config.save_config(
                     self.conn_input.text().strip(),
-                    Config.DB_NAME,  # Keep current database
+                    Config.DB_NAME,
                 )
 
                 QMessageBox.information(
@@ -110,7 +107,6 @@ class ChangeConnectionDialog(QDialog):
                     "Connection string changed successfully.\nApplication will now close.\n\nPlease restart the application.",
                 )
 
-                # Close main window which will exit application
                 self.parent().close()
 
         except Exception as e:

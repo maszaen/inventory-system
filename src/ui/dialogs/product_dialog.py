@@ -43,9 +43,18 @@ class ProductDialog(QDialog):
         self.price_entry = QLineEdit()
         self.price_entry.setStyleSheet(form)
 
+        # Capital field
         if self.product:
             self.price_entry.setText(str(self.product.price))
         layout.addWidget(self.price_entry)
+
+        layout.addWidget(QLabel("Capital:"))
+        self.capital_entry = QLineEdit()
+        self.capital_entry.setStyleSheet(form)
+
+        if self.product:
+            self.capital_entry.setText(str(self.product.capital))
+        layout.addWidget(self.capital_entry)
 
         # Stock field
         layout.addWidget(QLabel("Stock:"))
@@ -79,19 +88,24 @@ class ProductDialog(QDialog):
         try:
             name = self.name_entry.text().strip()
             price = Decimal(self.price_entry.text())
+            capital = Decimal(self.capital_entry.text())
             stock = int(self.stock_entry.text())
 
             if not name:
                 raise ValueError("Product name is required!")
             if price <= 0:
                 raise ValueError("Price must be positive")
+            if capital <= 0:
+                raise ValueError("Capital must be positive")
+            if capital > price:
+                raise ValueError("Capital cannot be greater than price")
             if stock < 0:
                 raise ValueError("Stock cannot be negative")
 
             if self.product:
-                # Update existing product
                 self.product.name = name
                 self.product.price = price
+                self.product.capital = capital
                 self.product.stock = stock
                 if self.product_manager.update_product(self.product):
                     self.logger.log_action(
@@ -105,11 +119,13 @@ class ProductDialog(QDialog):
                 else:
                     raise ValueError("Failed to update product")
             else:
-                # Create new product
-                new_product = Product(name=name, price=price, stock=stock)
+                new_product = Product(
+                    name=name, price=price, stock=stock, capital=capital
+                )
                 if self.product_manager.create_product(new_product):
                     self.logger.log_action(
                         f"Created new product: {name} "
+                        f"(Capital: {new_product.capital}, "
                         f"(ID: {new_product._id}, "
                         f"Price: {price}, Stock: {stock})"
                     )

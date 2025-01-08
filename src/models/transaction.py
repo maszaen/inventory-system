@@ -12,7 +12,9 @@ class Transaction:
         product_name: str,
         quantity: int,
         total: Decimal,
-        date: date,  # Bisa menerima datetime.date
+        capital: Decimal,
+        profit: Decimal,
+        date: date,
         _id: Optional[ObjectId] = None,
         created_at: Optional[datetime] = None,
     ):
@@ -21,6 +23,8 @@ class Transaction:
         self.product_name = product_name
         self.quantity = quantity
         self.total = total
+        self.capital = capital
+        self.profit = profit
         self.date = date
         self.created_at = created_at or datetime.utcnow()
 
@@ -30,10 +34,10 @@ class Transaction:
             "product_id": self.product_id,
             "product_name": self.product_name,
             "quantity": self.quantity,
-            "total": str(self.total),  # Konversi Decimal ke string
-            "date": datetime.combine(
-                self.date, datetime.min.time()
-            ),  # Konversi date ke datetime
+            "total": str(self.total),
+            "capital": str(self.capital),
+            "profit": str(self.profit),
+            "date": datetime.combine(self.date, datetime.min.time()),
             "created_at": self.created_at,
         }
 
@@ -45,7 +49,9 @@ class Transaction:
             product_name=data["product_name"],
             quantity=data["quantity"],
             total=Decimal(str(data["total"])),
-            date=data["date"].date(),  # Konversi datetime ke date
+            capital=Decimal(str(data["capital"])),
+            profit=Decimal(str(data["profit"])),
+            date=data["date"].date(),
             created_at=data.get("created_at"),
         )
 

@@ -33,12 +33,13 @@ class SaleDialog(QDialog):
         self.setup_dialog()
 
     def setup_dialog(self):
+        colors = Theme.get_theme_colors()
         form = Theme.form()
         btn = Theme.btn()
         date = Theme.datepick()
         cbox = Theme.cbox()
         self.setWindowTitle("Edit Sale" if self.transaction else "Add New Sale")
-        self.setGeometry(100, 100, 300, 280)
+        self.setGeometry(100, 100, 300, 390)
         self.setWindowModality(Qt.ApplicationModal)
 
         layout = QVBoxLayout()
@@ -77,7 +78,7 @@ class SaleDialog(QDialog):
         # Stock info
         self.stock_info = QLabel()
         self.stock_info.setStyleSheet(
-            "color: #888888; font-size: 12px; margin-top: -5px;"
+            "color: #888888; font-size: 12px; margin-top: 5px;"
         )
         layout.addWidget(self.stock_info)
 
@@ -95,6 +96,15 @@ class SaleDialog(QDialog):
             self.quantity_entry.setText(str(self.transaction.quantity))
         layout.addWidget(self.quantity_entry)
 
+        self.profit_preview = QLabel()
+        self.profit_preview.setStyleSheet(
+            f"color: {colors["text_primary"]}; font-size: 13px; margin-top: 5px;"
+        )
+        layout.addWidget(self.profit_preview)
+
+        self.quantity_entry.textChanged.connect(self.update_profit_preview)
+        self.product_combo.currentTextChanged.connect(self.update_profit_preview)
+
         # Separator line
         separator = QLabel()
         separator.setFrameShape(QLabel.HLine)
@@ -108,6 +118,7 @@ class SaleDialog(QDialog):
 
         self.setLayout(layout)
         self.center_dialog()
+        self.update_profit_preview()
 
     def center_dialog(self):
         screen = self.screen().geometry()
@@ -139,6 +150,8 @@ class SaleDialog(QDialog):
 
             # Calculate total
             total = selected_product.price * quantity
+            total_capital = selected_product.capital * quantity
+            profit = total - total_capital
 
             if self.transaction:
                 # Mode Edit
@@ -183,6 +196,8 @@ class SaleDialog(QDialog):
                 self.transaction.product_name = product_name
                 self.transaction.quantity = quantity
                 self.transaction.total = total
+                self.transaction.capital = total_capital
+                self.transaction.profit = profit
 
                 # Simpan perubahan
                 if not self.transaction_manager.update_transaction(self.transaction):
@@ -197,6 +212,8 @@ class SaleDialog(QDialog):
                     f"  Product: {product_name}\n"
                     f"  Quantity: {quantity}\n"
                     f"  Total: {total}\n"
+                    f"  Capital: {total_capital}\n"
+                    f"  Profit: {profit}\n"
                     f"  Stock: {available_stock} → {selected_product.stock}"
                 )
 
@@ -214,6 +231,8 @@ class SaleDialog(QDialog):
                     product_name=product_name,
                     quantity=quantity,
                     total=total,
+                    capital=total_capital,
+                    profit=profit,
                     date=sale_date,
                 )
 
@@ -253,6 +272,29 @@ class SaleDialog(QDialog):
             QMessageBox.critical(self, "Error", str(e))
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
+
+    def update_profit_preview(self):
+        try:
+            product_name = self.product_combo.currentText()
+            selected_product = next(
+                (p for p in self.products if p.name == product_name), None
+            )
+            quantity = int(self.quantity_entry.text() or "0")
+
+            if selected_product:
+                total = selected_product.price * quantity
+                total_capital = selected_product.capital * quantity
+                profit = total - total_capital
+
+                self.profit_preview.setText(
+                    f"Total Revenue: Rp{total:,.2f}\n"
+                    f"Total Capital: Rp{total_capital:,.2f}\n"
+                    f"Profit: Rp{profit:,.2f}"
+                )
+            else:
+                self.profit_preview.setText("")
+        except ValueError:
+            self.profit_preview.setText("")
 
     def update_stock_info(self, product_name):
         selected_product = next(

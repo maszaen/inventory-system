@@ -4,12 +4,12 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QPushButton,
     QTableView,
     QHeaderView,
     QMessageBox,
     QAbstractItemView,
     QMenu,
+    QComboBox,
 )
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QPoint
@@ -68,6 +68,34 @@ class SalesTab(QWidget):
         self.search_entry.textChanged.connect(self.refresh_sales_list)
         control_layout.addWidget(self.search_entry)
 
+        self.sort_combobox = QComboBox()
+        self.sort_combobox.addItems(
+            [
+                "Sort by: Transaction Date (Newest)",
+                "Sort by: Transaction Date (Oldest)",
+                "Sort by: Created (Newest)",
+                "Sort by: Created (Oldest)",
+                "Sort by: Amount (Highest)",
+                "Sort by: Amount (Lowest)",
+                "Sort by: Quantity (Highest)",
+                "Sort by: Quantity (Lowest)",
+            ]
+        )
+        self.sort_combobox.setStyleSheet(
+            f"""
+            QComboBox {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+                width: 240px;
+            }}
+            """
+        )
+        self.sort_combobox.currentIndexChanged.connect(self.refresh_sales_list)
+        control_layout.addWidget(self.sort_combobox)
+
         # Sales Table
         self.sales_table = QTableView()
         self.sales_table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -93,6 +121,24 @@ class SalesTab(QWidget):
             for transaction in self.cached_transactions
             if search_text in transaction.product_name.lower()
         ]
+
+        sort_option = self.sort_combobox.currentIndex()
+        if sort_option == 0:
+            self.filtered_transactions.sort(key=lambda x: x.date, reverse=True)
+        elif sort_option == 1:
+            self.filtered_transactions.sort(key=lambda x: x.date)
+        elif sort_option == 2:
+            self.filtered_transactions.sort(key=lambda x: x.created_at, reverse=True)
+        elif sort_option == 3:
+            self.filtered_transactions.sort(key=lambda x: x.created_at)
+        elif sort_option == 4:
+            self.filtered_transactions.sort(key=lambda x: x.total, reverse=True)
+        elif sort_option == 5:
+            self.filtered_transactions.sort(key=lambda x: x.total)
+        elif sort_option == 6:
+            self.filtered_transactions.sort(key=lambda x: x.quantity, reverse=True)
+        elif sort_option == 7:
+            self.filtered_transactions.sort(key=lambda x: x.quantity)
 
         # Update pagination
         self.pagination.set_total_items(len(self.filtered_transactions))

@@ -2,7 +2,6 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QPushButton,
     QLineEdit,
     QLabel,
     QHeaderView,
@@ -10,6 +9,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QTableView,
     QMenu,
+    QComboBox,
 )
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QPoint
@@ -25,6 +25,7 @@ class ProductTab(QWidget):
         super().__init__(parent)
         self.product_manager = product_manager
         self.logger = logger
+        self.user = parent.user
         self.cached_products = []
         self.filtered_products = []
         self.cached_products = self.product_manager.get_all_products()
@@ -59,6 +60,32 @@ class ProductTab(QWidget):
         )
         self.search_entry.textChanged.connect(self.refresh_product_list)
         control_layout.addWidget(self.search_entry)
+
+        self.sort_combobox = QComboBox()
+        self.sort_combobox.addItems(
+            [
+                "Sort by: Date (Newest)",
+                "Sort by: Date (Oldest)",
+                "Sort by: Price (Highest)",
+                "Sort by: Price (Lowest)",
+                "Sort by: Name (A-Z)",
+                "Sort by: Name (Z-A)",
+            ]
+        )
+        self.sort_combobox.setStyleSheet(
+            f"""
+            QComboBox {{
+                background-color: {colors['background']};
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
+                padding: 5px;
+                color: {colors['text_primary']};
+                width: 240px;
+            }}
+            """
+        )
+        self.sort_combobox.currentIndexChanged.connect(self.refresh_product_list)
+        control_layout.addWidget(self.sort_combobox)
 
         # Product Table
         self.product_table = QTableView()
@@ -99,12 +126,25 @@ class ProductTab(QWidget):
 
         self.cached_products = self.product_manager.get_all_products()
 
-        # Filter dari cache
         self.filtered_products = [
             product
             for product in self.cached_products
             if search_text in product.name.lower()
         ]
+
+        sort_option = self.sort_combobox.currentIndex()
+        if sort_option == 0:
+            self.filtered_products.sort(key=lambda p: p.created_at, reverse=True)
+        elif sort_option == 1:
+            self.filtered_products.sort(key=lambda p: p.created_at)
+        elif sort_option == 2:
+            self.filtered_products.sort(key=lambda p: p.price, reverse=True)
+        elif sort_option == 3:
+            self.filtered_products.sort(key=lambda p: p.price)
+        elif sort_option == 4:
+            self.filtered_products.sort(key=lambda p: p.name.lower())
+        elif sort_option == 5:
+            self.filtered_products.sort(key=lambda p: p.name.lower(), reverse=True)
 
         # Update pagination
         self.pagination.set_total_items(len(self.filtered_products))
@@ -121,7 +161,7 @@ class ProductTab(QWidget):
         page_products = self.filtered_products[start_idx:end_idx]
 
         # Update model
-        self.model = ProductTableModel(page_products)
+        self.model = ProductTableModel(page_products, self)
         self.product_table.setModel(self.model)
 
     def on_page_changed(self):

@@ -10,7 +10,7 @@ class SalesTableModel(QAbstractTableModel):
         return len(self._transactions)
 
     def columnCount(self, parent=None):
-        return 5  # ID, Date, Product, Quantity, Total
+        return 6
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -31,12 +31,14 @@ class SalesTableModel(QAbstractTableModel):
                 return str(transaction.quantity)
             elif col == 4:
                 return f"Rp{transaction.total:,}"
+            elif col == 5:
+                return f"Rp{transaction.profit:,}"
         return None
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
-            headers = ["ID", "Date", "Product", "Quantity", "Total"]
+            headers = ["ID", "Date", "Product", "Quantity", "Total", "Profit"]
             return headers[section]
         return None

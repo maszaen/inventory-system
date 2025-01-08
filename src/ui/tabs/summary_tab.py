@@ -357,6 +357,11 @@ class SummaryTab(QWidget):
 
             # Basic calculations
             total_amount = sum(t.total for t in transactions)
+            total_capital = sum(t.capital for t in transactions)
+            total_profit = sum(t.profit for t in transactions)
+            profit_margin = (
+                (total_profit / total_amount * 100) if total_amount > 0 else 0
+            )
             product_summary = defaultdict(
                 lambda: {"quantity": 0, "total": Decimal("0")}
             )
@@ -375,6 +380,8 @@ class SummaryTab(QWidget):
                 end_date,
                 transactions,
                 total_amount,
+                total_capital,
+                total_profit,
                 product_summary,
                 trends,
             )
@@ -388,7 +395,15 @@ class SummaryTab(QWidget):
             QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
 
     def format_summary_report(
-        self, start_date, end_date, transactions, total_amount, product_summary, trends
+        self,
+        start_date,
+        end_date,
+        transactions,
+        total_amount,
+        total_capital,
+        total_profit,
+        product_summary,
+        trends,
     ):
         """Format the summary report with HTML styling and consistent spacing"""
         colors = Theme.get_theme_colors()
@@ -455,6 +470,8 @@ class SummaryTab(QWidget):
             <div class="data">
                 Total Transactions: <span class="highlight">{len(transactions)}</span><br>
                 Total Revenue: <span class="highlight">Rp{total_amount:,.2f}</span><br>
+                Total Capital: <span class="highlight">Rp{total_capital:,.2f}</span><br>
+                Total Profit: <span class="highlight">Rp{total_profit:,.2f}</span><br>
                 Average Transaction Value: <span class="highlight">Rp{(total_amount / len(transactions)):,.2f}</span>
             </div>
         </div>

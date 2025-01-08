@@ -4,13 +4,21 @@ from PySide6.QtCore import Qt, QAbstractTableModel
 class ProductTableModel(QAbstractTableModel):
     def __init__(self, products=None, parent=None):
         super().__init__(parent)
+        self.parent = parent
         self._products = products or []
+        self._headers = [
+            "ID",
+            "Name",
+            "Price",
+            "Capital",
+            "Stock",
+        ]
 
     def rowCount(self, parent=None):
         return len(self._products)
 
     def columnCount(self, parent=None):
-        return 4
+        return len(self._headers)
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -28,13 +36,15 @@ class ProductTableModel(QAbstractTableModel):
             elif col == 2:
                 return f"Rp{product.price:,}"
             elif col == 3:
+                return f"Rp{product.capital:,}"
+            elif col == 4:
                 return str(product.stock)
         return None
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return None
+
         if orientation == Qt.Horizontal:
-            headers = ["ID", "Name", "Price", "Stock"]
-            return headers[section]
+            return self._headers[section] if section < len(self._headers) else None
         return None

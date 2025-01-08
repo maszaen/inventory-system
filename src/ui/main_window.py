@@ -138,18 +138,21 @@ class MainWindow(QMainWindow):
         refresh_totals_btn.clicked.connect(self.refresh_sidebar_totals)
         sidebar_layout.addWidget(refresh_totals_btn)
 
-        # Sales Statistics Cards
         self.totalSales = QLabel("Loading...", self)
         self.totalThisMonth = QLabel("Loading...", self)
         self.totalToday = QLabel("Loading...", self)
 
+        self.totalProfit = QLabel("Loading...", self)
+        self.profitThisMonth = QLabel("Loading...", self)
+        self.profitToday = QLabel("Loading...", self)
+
         labels = [
-            ("Total Sales", self.totalSales, "📈"),
-            ("This Month", self.totalThisMonth, "📅"),
-            ("Today", self.totalToday, "💰"),
+            ("Total Sales", self.totalSales, self.totalProfit, "📈"),
+            ("This Month", self.totalThisMonth, self.profitThisMonth, "📅"),
+            ("Today", self.totalToday, self.profitToday, "💰"),
         ]
 
-        for title, value_label, icon in labels:
+        for title, sales_label, profit_label, icon in labels:
             card = QFrame(self)
             card.setFrameShape(QFrame.StyledPanel)
             card.setStyleSheet(
@@ -157,8 +160,9 @@ class MainWindow(QMainWindow):
             )
 
             layout = QVBoxLayout(card)
-            layout.setSpacing(4)
+            layout.setSpacing(0)
 
+            # Header with title
             header_layout = QHBoxLayout()
             title_label = QLabel(f"{icon} {title}", self)
             title_label.setStyleSheet(
@@ -167,15 +171,31 @@ class MainWindow(QMainWindow):
             header_layout.addWidget(title_label)
             header_layout.addStretch()
 
-            value_label.setStyleSheet(
-                f"border: 0px; font-size: 18px; font-weight: bold; color: {colors['text_secondary']};"
+            # Container for sales and profit labels
+            label_container = QWidget(self)
+            label_layout = QVBoxLayout(label_container)
+            label_container.setStyleSheet(
+                f"border: 0px; background: {colors['card_bg']};"
             )
+            label_layout.setSpacing(3)
+
+            # Sales label
+            sales_label.setStyleSheet(
+                f"border: 0px; font-size: 20px; font-weight: bold; color: {colors['text_secondary']};"
+            )
+            sales_label.setAlignment(Qt.AlignCenter)
+            label_layout.addWidget(sales_label)
+
+            profit_label.setStyleSheet(
+                f"border: 1px solid {colors['border']}; font-size: 14px; color: {colors['text_primary']}; padding: 4px; background-color: {colors['background']};"
+            )
+            profit_label.setAlignment(Qt.AlignCenter)
+            label_layout.addWidget(profit_label)
 
             layout.addLayout(header_layout)
-            layout.addWidget(value_label)
+            layout.addWidget(label_container)
             sidebar_layout.addWidget(card)
 
-        # Quick Actions Section
         actions_label = QLabel("Quick Actions", self)
         actions_label.setStyleSheet(
             f"color: {colors['text_secondary']}; font-size: 13px; margin-top: 8px; border: 0px;"
@@ -183,7 +203,6 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(actions_label)
 
         # Action Buttons
-
         add_product_btn = QPushButton("➕ Add New Product")
         add_product_btn.setStyleSheet(action_button_style)
         add_product_btn.clicked.connect(
@@ -207,16 +226,26 @@ class MainWindow(QMainWindow):
 
         self.main_layout.addWidget(sidebar_widget)
 
-        # Refresh totals
         self.refresh_sidebar_totals()
 
     def refresh_sidebar_totals(self):
         transactions = self.transaction_manager.get_all_transactions()
-        total_all_sales, total_this_month, total_today = calculate_totals(transactions)
+        (
+            total_all_sales,
+            total_this_month,
+            total_today,
+            total_all_profit,
+            profit_this_month,
+            profit_today,
+        ) = calculate_totals(transactions)
 
-        self.totalSales.setText(f"Rp{total_all_sales:,.2f}")
-        self.totalThisMonth.setText(f"Rp{total_this_month:,.2f}")
-        self.totalToday.setText(f"Rp{total_today:,.2f}")
+        self.totalSales.setText(f"Rp {total_all_sales:,.2f}")
+        self.totalThisMonth.setText(f"Rp {total_this_month:,.2f}")
+        self.totalToday.setText(f"Rp {total_today:,.2f}")
+
+        self.totalProfit.setText(f"Profit: Rp {total_all_profit:,.2f}")
+        self.profitThisMonth.setText(f"Profit: Rp {profit_this_month:,.2f}")
+        self.profitToday.setText(f"Profit: Rp {profit_today:,.2f}")
 
     def setup_notebook(self):
         notebook = QTabWidget(self)
@@ -233,7 +262,6 @@ class MainWindow(QMainWindow):
         self.summary_tab = SummaryTab(self, self.transaction_manager)
         self.chart_tab = ChartTab(self, self.transaction_manager)
 
-        # Add tabs to the notebook
         notebook.addTab(self.product_tab, "Products")
         notebook.addTab(self.sales_tab, "Sales")
         notebook.addTab(self.summary_tab, "Summary")
@@ -244,7 +272,7 @@ class MainWindow(QMainWindow):
             self.product_tab.refresh_product_list()
         if hasattr(self, "sales_tab"):
             self.sales_tab.refresh_sales_list()
-        if hasattr(self, "chart_tab"):  # Tambahkan refresh untuk chart
+        if hasattr(self, "chart_tab"):
             self.chart_tab.update_chart()
 
     def logout(self):

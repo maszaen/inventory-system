@@ -5,9 +5,16 @@ from PySide6.QtWidgets import (
     QComboBox,
     QFrame,
     QLabel,
+    QSizePolicy,
 )
 from PySide6.QtCore import Qt
-from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis, QDateTimeAxis
+from PySide6.QtCharts import (
+    QChart,
+    QChartView,
+    QSplineSeries,
+    QValueAxis,
+    QDateTimeAxis,
+)
 from PySide6.QtGui import QPainter
 from datetime import datetime
 from collections import defaultdict
@@ -79,23 +86,19 @@ class ChartTab(QWidget):
         control_layout.addWidget(year_widget)
         control_layout.addStretch()
 
-        # Add control layout to the combined control and chart card
         control_chart_layout.addLayout(control_layout)
 
         # Chart Container
         chart_layout = QVBoxLayout()
 
-        # Create Chart
+        # Setup Chart
         self.chart_view = self.setup_chart()
         chart_layout.addWidget(self.chart_view)
 
-        # Add chart layout to the combined control and chart card
         control_chart_layout.addLayout(chart_layout)
 
-        # Add the combined control and chart card to main layout
         layout.addWidget(control_chart_card)
 
-        # Initial chart update
         self.update_chart()
 
     def setup_chart(self):
@@ -132,6 +135,7 @@ class ChartTab(QWidget):
         return chart_view
 
     def update_chart(self):
+        colors = Theme.get_theme_colors()
         selected_year = int(self.year_combo.currentText())
 
         # Get transactions for the selected year
@@ -143,41 +147,66 @@ class ChartTab(QWidget):
 
         # Group transactions by month
         monthly_profits = defaultdict(float)
+        monthly_revenue = defaultdict(float)
+
         for transaction in transactions:
             month = transaction.date.month
-            monthly_profits[month] += float(transaction.total)
+            monthly_profits[month] += float(transaction.profit)
+            monthly_revenue[month] += float(transaction.total)
 
         # Create series
-        series = QLineSeries()
-        series.setName("Monthly Profit")
+        profit_series = QSplineSeries()
+        profit_series.setName("Monthly Profit")
 
+        revenue_series = QSplineSeries()
+        revenue_series.setName("Monthly Revenue")
+
+        # Initialize min and max values
         min_value = float("inf")
         max_value = float("-inf")
 
         for month in range(1, 13):
             date = datetime(selected_year, month, 15)
             timestamp = int(datetime.timestamp(date) * 1000)
-            value = monthly_profits.get(month, 0)
+            profit_value = monthly_profits.get(month, 0)
+            revenue_value = monthly_revenue.get(month, 0)
 
-            series.append(timestamp, value)
+            profit_series.append(timestamp, profit_value)
+            revenue_series.append(timestamp, revenue_value)
 
-            min_value = min(min_value, value)
-            max_value = max(max_value, value)
+            min_value = min(min_value, profit_value, revenue_value)
+            max_value = max(max_value, profit_value, revenue_value)
+
+        # Ensure minimum value is non-negative
+        min_value = min(min_value, 0)
 
         # Update chart
         chart = self.chart_view.chart()
         chart.removeAllSeries()
-        chart.addSeries(series)
+        chart.addSeries(profit_series)
+        chart.addSeries(revenue_series)
 
         # Update axes
         start_date = datetime(selected_year, 1, 1)
         end_date = datetime(selected_year, 12, 31)
 
         self.axis_x.setRange(start_date, end_date)
-        self.axis_y.setRange(0, max_value * 1.1)  # Add 10% padding
+        self.axis_y.setRange(min_value, max_value * 1.1)
 
-        series.attachAxis(self.axis_x)
-        series.attachAxis(self.axis_y)
+        profit_series.attachAxis(self.axis_x)
+        profit_series.attachAxis(self.axis_y)
+        revenue_series.attachAxis(self.axis_x)
+        revenue_series.attachAxis(self.axis_y)
 
-        # Set chart title
-        chart.setTitle(f"Monthly Sales Profit - {selected_year}")
+        chart.setTitle(f"Monthly Sales Profit and Revenue - {selected_year}")
+        # Customize Y-axis appearance
+        self.axis_y.setLabelsColor(colors["text_primary"])
+
+        self.axis_y.setGridLineColor(colors["border"])
+        self.axis_y.setTickCount(11)
+        self.axis_y.setMinorTickCount(4)
+
+        # print("Transactions:", transactions)
+        # print("Monthly Profits:", dict(monthly_profits))
+        # print("Monthly Revenue:", dict(monthly_revenue))
+        # print(f"Min Value: {min_value}, Max Value: {max_value}")

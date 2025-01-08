@@ -91,7 +91,7 @@ class EnvironmentPathDialog(QDialog):
                     "Success",
                     "Environment path updated successfully.\nApplication will now restart.",
                 )
-                self.parent().close()  # This will trigger application restart
+                self.parent().close()
             else:
                 raise Exception("Invalid path selected")
 

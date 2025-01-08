@@ -10,6 +10,7 @@ class Product:
         self,
         name: str,
         price: Decimal,
+        capital: Decimal,
         stock: int,
         _id: Optional[ObjectId] = None,
         created_at: Optional[datetime] = None,
@@ -18,6 +19,7 @@ class Product:
         self._id = _id or ObjectId()
         self.name = name
         self.price = price
+        self.capital = capital
         self.stock = stock
         self.created_at = created_at or datetime.utcnow()
         self.updated_at = updated_at or datetime.utcnow()
@@ -28,6 +30,7 @@ class Product:
             _id=data.get("_id"),
             name=data["name"],
             price=Decimal(str(data["price"])),
+            capital=Decimal(str(data["capital"])),
             stock=data["stock"],
             created_at=data.get("created_at"),
             updated_at=data.get("updated_at"),
@@ -38,6 +41,7 @@ class Product:
             "_id": self._id,
             "name": self.name,
             "price": str(self.price),
+            "capital": str(self.capital),
             "stock": self.stock,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
@@ -69,6 +73,7 @@ class ProductManager:
                     "$set": {
                         "name": product.name,
                         "price": str(product.price),
+                        "capital": str(product.capital),
                         "stock": product.stock,
                         "updated_at": datetime.utcnow(),
                     }

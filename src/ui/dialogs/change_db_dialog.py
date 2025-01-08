@@ -64,7 +64,6 @@ class ChangeDatabaseDialog(QDialog):
         try:
             new_db = self.db_combo.currentText()
 
-            # Konfirmasi perubahan
             reply = QMessageBox.question(
                 self,
                 "Confirm Change",
@@ -74,7 +73,6 @@ class ChangeDatabaseDialog(QDialog):
             )
 
             if reply == QMessageBox.Yes:
-                # Save new database name
                 Config.save_config(Config.MONGODB_URI, new_db)
 
                 QMessageBox.information(
