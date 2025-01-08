@@ -5,7 +5,6 @@ from utils.manifest_handler import ManifestHandler
 
 class Config:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    LOG_DIR = os.path.join(BASE_DIR, "logs")
 
     APP_TITLE = "PyStockFlow"
     WINDOW_WIDTH = 1200
@@ -14,6 +13,8 @@ class Config:
 
     manifest = ManifestHandler(BASE_DIR)
     ENV_FILE = manifest.get_env_path()
+
+    LOG_DIR = os.path.join(os.path.dirname(ENV_FILE), "logs")
 
     load_dotenv(ENV_FILE)
 
@@ -26,6 +27,7 @@ class Config:
         """Set new environment file path"""
         if cls.manifest.set_env_path(path):
             cls.ENV_FILE = path
+            cls.LOG_DIR = os.path.join(os.path.dirname(path), "logs")
             cls.load_env()
             return True
         return False
@@ -55,6 +57,7 @@ class Config:
 
             cls.manifest.reset_to_default()
             cls.ENV_FILE = cls.manifest.get_env_path()
+            cls.LOG_DIR = os.path.join(os.path.dirname(cls.ENV_FILE), "logs")
 
             cls.MONGODB_URI = ""
             cls.DB_NAME = "PyStockFlow"
