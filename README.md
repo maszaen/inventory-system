@@ -1,8 +1,10 @@
 # PyStockFlow Docs v5.0
 > Developed and Maintained by Zaeni Ahmad __(maszaen)__
 
-_Catatan: Aplikasi ini sudah dibungkus menjadi file exe menggunakan pyinstaller, jika ingin mencoba aplikasi ini silakan tonton dokumentasinya terlebih dahulu (dokumentasi belum dibuat)._ <br/>
-_Lalu untuk mencoba aplikasinya bisa download file exe pada **repository relases** yang terbaru atau bisa clone project ini (tanpa harus build aplikasi)_
+Catatan: Aplikasi ini telah dikompilasi menjadi file executable (.exe) menggunakan Nuitka dan dibuat installer menggunakan Inno Setup. Untuk mencoba aplikasi ini, Kamu bisa:
+
+- Download installer terbaru dari  [_Relases_](https://github.com/maszaen/inventory-system/issues) pada repository ini.
+- Atau clone repository ini dan jalankan aplikasi dari source code (link dokumentasi akan segera dibuat)
 
 ## Arsitektur
 
