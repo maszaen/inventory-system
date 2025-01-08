@@ -43,56 +43,16 @@ pip install -r requirements.txt
 ## Struktur Direktori
 
 ```
-├── .gitignore
-├── build.py
-├── inventory.spec
-├── requirements.txt
 ├── logs/
 ├── assets/
-│   └── icon.ico
 └── src/
     ├── database/
-    │   ├── __init__.py
-    │   └── connection.py
     ├── models/
-    │   ├── __init__.py
-    │   ├── product.py
-    │   ├── transaction.py
-    │   └── user.py
     ├── ui/
-    │   ├── __init__.py
     │   ├── dialogs/
-    │   │   ├── change_conn_str.py
-    │   │   ├── change_db_dialog.py
-    │   │   ├── change_pass_dialog.py
-    │   │   ├── db_setup_dialog.py
-    │   │   ├── env_path_dialog.py
-    │   │   ├── product_dialog.py
-    │   │   ├── register_dialog.py
-    │   │   └── sale_dialog.py
-    │   ├── login_window.py
-    │   ├── main_window.py
     │   ├── models/
-    │   │   ├── product_table_model.py
-    │   │   ├── sales_table_model.py
-    │   │   └── __init__.py
-    │   ├── tabs/
-    │   │   ├── chart_tab.py
-    │   │   ├── product_tab.py
-    │   │   ├── sales_tab.py
-    │   │   └── summary_tab.py
-    ├── utils/
-    │   ├── __init__.py
-    │   ├── calculate_totals.py
-    │   ├── logger.py
-    │   ├── manifest_handler.py
-    │   ├── menu_bar.py
-    │   ├── pagination.py
-    ├── __init__.py
-    ├── style_config.py
-    ├── main.py
-    └── config.py
-
+    │   └── tabs/
+    └── utils/
 ```
 
 ## Panduan Penggunaan Singkat
