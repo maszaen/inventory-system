@@ -28,7 +28,6 @@ def build():
         "--include-module=src.database",
         f"--include-data-files={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}=icon.ico",
         f"--include-data-dir={os.path.join(MAIN_PROJECT, 'assets')}=assets/",
-        f"--include-data-dir={os.path.join(MAIN_PROJECT, 'logs')}=logs/",
         f"--include-data-files={os.path.join(MAIN_PROJECT, 'src', 'config.py')}=src/config.py",
         f"--include-data-files={os.path.join(MAIN_PROJECT, 'src', 'style_config.py')}=src/style_config.py",
         f"--windows-icon-from-ico={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}",
