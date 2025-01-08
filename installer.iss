@@ -1,12 +1,12 @@
 #define MyAppName "PyStockFlow"
-#define MyAppVersion "2.0.0"
-#define MyAppPublisher "Amikom"
-#define MyAppURL "https://amikom.ac.id/"
+#define MyAppVersion "5.0.0"
+#define MyAppPublisher "Maszaen"
+#define MyAppURL "https://github.com/maszaen/inventory-system"
 #define MyAppExeName "PyStockFlow.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
-AppId={adfb107b-8fa6-45a3-9c91-1d07cdd422ba}
+AppId={{adfb107b-8fa6-45a3-9c91-1d07cdd422ba}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -31,7 +31,6 @@ DisableProgramGroupPage=auto
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "indonesian"; MessagesFile: "compiler:Languages\Indonesian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
