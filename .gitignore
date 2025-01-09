@@ -26,13 +26,38 @@ installer/
 /installer/
 /*.exe
 /*.spec
+*.onefile-build/
+*.cmd
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dll
+*.dylib
+*.out
 
 # Logs
 /logs/*
 !/logs/.gitkeep
 
-# Build files
-*.build/
-*.dist/
-*.onefile-build/
-*.cmd
+# Dependencies, virtual envs
+**/node_modules/
+**/__pycache__/
+**/.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp
+*.bak
+*.tmp
+*.temp
+~*
+
+# Test
+.coverage
+coverage/
+htmlcov/
+.tox/
