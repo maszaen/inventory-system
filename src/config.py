@@ -14,7 +14,7 @@ class Config:
     APP_VERSION = "5.0"
 
     manifest = ManifestHandler(BASE_DIR)
-    ENV_FILE_ENC = manifest.get_env_path()  # File terenkripsi
+    ENV_FILE_ENC = manifest.get_env_path()
     ENCRYPTION_KEY_PATH = manifest.get_key_path()
 
     TEMP_DIR = os.path.join(os.path.dirname(ENCRYPTION_KEY_PATH), "temp")
@@ -22,6 +22,7 @@ class Config:
     TEMP_ENV_FILE = os.path.join(TEMP_DIR, UNIQUE_ID, f"{UNIQUE_ID}.temp")
 
     LOG_DIR = os.path.join(os.path.dirname(ENV_FILE_ENC), "logs")
+    ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 
     @classmethod
     def load_env(cls):

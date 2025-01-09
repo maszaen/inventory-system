@@ -18,7 +18,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-OutputDir=installer_output
+OutputDir=installer
 OutputBaseFilename=PyStockFlow_Setup
 SetupIconFile=assets\icon.ico
 Compression=lzma

@@ -26,14 +26,14 @@ def build():
         "--include-module=src.ui",
         "--include-module=src.utils",
         "--include-module=src.database",
-        f"--include-data-files={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}=icon.ico",
         f"--include-data-dir={os.path.join(MAIN_PROJECT, 'assets')}=assets/",
+        f"--include-data-files={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}=icon.ico",
         f"--include-data-files={os.path.join(MAIN_PROJECT, 'src', 'config.py')}=src/config.py",
         f"--include-data-files={os.path.join(MAIN_PROJECT, 'src', 'style_config.py')}=src/style_config.py",
         f"--windows-icon-from-ico={os.path.join(MAIN_PROJECT, 'assets', 'icon.ico')}",
-        "--windows-company-name=Amikom",
+        "--windows-company-name=Maszaen",
         "--windows-product-name=PyStockFlow",
-        "--windows-file-version=2.0.0",
+        "--windows-file-version=3.0.0",
         "--windows-product-version=5.0.0",
         f"--output-dir={OUTPUT_DIR}",
         "--output-filename=PyStockFlow.exe",
@@ -56,7 +56,7 @@ def build():
 
         if result.stderr:
             print("\nBuild Warnings/Errors:")
-            print(result.stderr)
+            print(f"{result.stderr}\n")
 
         print("\nBuild completed successfully!")
         print(f"Executable can be found in: {OUTPUT_DIR}")
