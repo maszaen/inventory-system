@@ -74,7 +74,6 @@ class Config:
             with open(cls.TEMP_ENV_FILE, "wb") as file:
                 file.write(decrypted_data)
 
-            print("Decryption successful. Temporary .env file created.")
         except InvalidToken:
             print("Invalid encryption token. Unable to decrypt the .env file.")
             raise

@@ -21,8 +21,11 @@ __pycache__/
 # Build outputs
 /build/
 /dist/
+installer/
+*.exe
+/installer/
+/*.exe
 /*.spec
-/installer_output/
 
 # Logs
 /logs/*
