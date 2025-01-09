@@ -1,6 +1,10 @@
 from PySide6.QtCore import Qt, QAbstractTableModel
 
 
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
+
+
 class ProductTableModel(QAbstractTableModel):
     def __init__(self, products=None, parent=None):
         super().__init__(parent)
@@ -38,7 +42,16 @@ class ProductTableModel(QAbstractTableModel):
             elif col == 3:
                 return f"Rp{product.capital:,}"
             elif col == 4:
-                return str(product.stock)
+                if product.stock < 3:
+                    return f"{product.stock} (Need Restock)"
+                else:
+                    return str(product.stock)
+
+        elif role == Qt.ForegroundRole:
+            if col == 4:
+                if product.stock < 3:
+                    return QColor("red")
+
         return None
 
     def headerData(self, section, orientation, role):

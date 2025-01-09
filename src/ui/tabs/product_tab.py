@@ -70,6 +70,8 @@ class ProductTab(QWidget):
                 "Sort by: Price (Lowest)",
                 "Sort by: Name (A-Z)",
                 "Sort by: Name (Z-A)",
+                "Sort by: Stock (Highest)",
+                "Sort by: Stock (Lowest)",
             ]
         )
         self.sort_combobox.setStyleSheet(
@@ -145,6 +147,10 @@ class ProductTab(QWidget):
             self.filtered_products.sort(key=lambda p: p.name.lower())
         elif sort_option == 5:
             self.filtered_products.sort(key=lambda p: p.name.lower(), reverse=True)
+        elif sort_option == 6:
+            self.filtered_products.sort(key=lambda p: p.stock, reverse=True)
+        elif sort_option == 7:
+            self.filtered_products.sort(key=lambda p: p.stock)
 
         # Update pagination
         self.pagination.set_total_items(len(self.filtered_products))

@@ -1,6 +1,5 @@
 import json
 import os
-from pathlib import Path
 
 
 class ManifestHandler:
@@ -22,10 +21,6 @@ class ManifestHandler:
         self._load_manifest()
 
     def _ensure_directory_accessible(self, directory):
-        """
-        Check if a directory is accessible and writable, create it if not exist.
-        Return True if accessible, otherwise False.
-        """
         try:
             if not os.path.exists(directory):
                 os.makedirs(directory)
@@ -71,6 +66,13 @@ class ManifestHandler:
             self._save_manifest()
             return True
         return False
+
+    def get_key_path(self):
+        """Get the path for the encryption key based on the env path"""
+        env_dir = os.path.dirname(self.get_env_path())
+        key_dir = os.path.join(env_dir, "key", "cryptography")
+        os.makedirs(key_dir, exist_ok=True)
+        return os.path.join(key_dir, "209feg98xx.key")
 
     def reset_to_default(self):
         """Reset environment path to default"""

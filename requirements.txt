@@ -8,3 +8,4 @@ numpy==1.25.2
 PySide6>=6.4.0
 bcrypt>=3.2.0
 xlsxwriter>=3.0.0
+cryptography==44.0.0

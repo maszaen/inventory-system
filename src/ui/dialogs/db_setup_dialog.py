@@ -21,14 +21,14 @@ class DatabaseSetupDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Database Setup")
         self.setModal(True)
-        self.setFixedSize(500, 450)
+        self.setFixedSize(500, 410)
         self.setup_ui()
 
     def setup_ui(self):
         btn = Theme.btn()
         txtbtn = Theme.txt_btn()
         cbox = Theme.cbox()
-        grnbtn = Theme.green_btn()
+        grnbtn = Theme.green_btn2()
         form = Theme.form()
         layout = QVBoxLayout(self)
 
@@ -51,6 +51,7 @@ class DatabaseSetupDialog(QDialog):
         # Database Selection
         db_layout = QVBoxLayout()
         db_label = QLabel("Select Database:")
+
         self.db_combo = QComboBox()
         self.db_combo.setStyleSheet(cbox)
         self.db_combo.setEnabled(False)

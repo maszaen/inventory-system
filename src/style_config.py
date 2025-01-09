@@ -171,6 +171,28 @@ class Theme:
         """
 
     @staticmethod
+    def green_btn2():
+        colors = Theme.get_theme_colors()
+        return f"""
+            QPushButton {{
+                background-color: #22c55e;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }}
+            QPushButton:hover {{
+                background-color: #16a34a;
+            }}
+            QPushButton:disabled {{
+                background-color: {colors['bg_disabled']};
+                color: {colors['color_disabled']};
+            }}
+        """
+
+    @staticmethod
     def txt_btn():
         return """
             QPushButton {

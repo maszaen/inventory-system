@@ -25,7 +25,7 @@ class MenuBar:
                 color: {colors['text_primary']};
             }}
             QMenuBar::item:selected {{
-                background-color: {colors['border']};
+                background-color: {colors['card_bg']};
             }}
         """
         )
@@ -33,6 +33,7 @@ class MenuBar:
         menu_style = f"""
             QMenu {{
                 background-color: {colors['card_bg']};
+                border: 1px solid {colors['border']};
                 color: {colors['text_primary']};
             }}
             QMenu::item:selected {{
@@ -78,8 +79,15 @@ class MenuBar:
         settings_menu.addAction(change_connection)
         settings_menu.addAction(delete_env)
 
+        refresh_menu = menubar.addMenu("Refresh")
+        refresh_menu.setStyleSheet(menu_style)
+
+        refresh = QAction("Refresh Data", self.main_window)
+        refresh.triggered.connect(self.main_window.refresh_all)
+
+        refresh_menu.addAction(refresh)
+
     def show_env_settings_dialog(self):
-        """Show environment settings dialog"""
         if not self.main_window.user:
             QMessageBox.warning(self.main_window, "Error", "Please log in first")
             return
