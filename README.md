@@ -6,6 +6,8 @@ Catatan: Aplikasi ini telah dikompilasi menjadi file executable (.exe) menggunak
 - Download installer PyStockFlow terbaru  [_Disini_](https://github.com/maszaen/inventory-system/releases/download/stable-relase-v5.0/PyStockFlow_Setup.exe).
 - Atau clone repository ini dan jalankan aplikasi dari source code (link dokumentasi akan segera dibuat)
 
+Untuk melihat flowchart lengkap, bisa klik [_Disini_](https://github.com/maszaen/inventory-system/releases/download/stable-relase-v5.0/PyStockFlow_Flowcharts.drawio) untuk mendownload.
+
 ## Arsitektur
 
 - PyQt (pyside6) GUI
