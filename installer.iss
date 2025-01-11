@@ -1,5 +1,5 @@
 #define MyAppName "PyStockFlow"
-#define MyAppVersion "5.0.0"
+#define MyAppVersion "5.5.0"
 #define MyAppPublisher "Maszaen"
 #define MyAppURL "https://github.com/maszaen/inventory-system"
 #define MyAppExeName "PyStockFlow.exe"
@@ -53,53 +53,51 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 function GetCustomEnvPath(Param: String): String;
 var
   ManifestFile: String;
-  ManifestContent: String;
-  EnvPath: String;
+  FileLines: TArrayOfString;
+  I: Integer;
+  Line: String;
+  StartPos: Integer;
+  EndPos: Integer;
 begin
-  // Try Program Files manifest first
+  Result := '';
+  
   ManifestFile := ExpandConstant('{autopf}\{#MyAppName}\manifest.json');
   if not FileExists(ManifestFile) then
-    // Try LocalAppData manifest
     ManifestFile := ExpandConstant('{localappdata}\{#MyAppName}\manifest.json');
     
-  if FileExists(ManifestFile) then
-  begin
-    LoadStringFromFile(ManifestFile, ManifestContent);
-    // Simple JSON parsing to get env_path
-    if Pos('"env_path":', ManifestContent) > 0 then
+  if LoadStringsFromFile(ManifestFile, FileLines) then
+    for I := 0 to GetArrayLength(FileLines) - 1 do
     begin
-      EnvPath := Copy(ManifestContent, Pos('"env_path":', ManifestContent) + 11,Pos('",', ManifestContent) - (Pos('"env_path":', ManifestContent) + 11));
-      Result := EnvPath;
+      Line := FileLines[I];
+      if Pos('"env_path":', Line) > 0 then
+      begin
+        StartPos := Pos('": "', Line) + 4;
+        EndPos := Pos('",', Line);
+        if (StartPos > 0) and (EndPos > StartPos) then
+          Result := Copy(Line, StartPos, EndPos - StartPos);
+        Break;
+      end;
     end;
-  end;
 end;
 
 [UninstallDelete]
-; Program Files
 Type: filesandordirs; Name: "{autopf}\{#MyAppName}\env"
 Type: filesandordirs; Name: "{autopf}\{#MyAppName}\temp"
 
-; LocalAppData
 Type: filesandordirs; Name: "{localappdata}\{#MyAppName}\env"
 Type: filesandordirs; Name: "{localappdata}\{#MyAppName}\temp"
 
-; Custom
 Type: files; Name: "{code:GetCustomEnvPath}"
 
-; Logs in Program Files
 Type: filesandordirs; Name: "{autopf}\{#MyAppName}\logs"
 
-; Logs in LocalAppData
 Type: filesandordirs; Name: "{localappdata}\{#MyAppName}\logs"
 
-; Logs in application directory
 Type: filesandordirs; Name: "{app}\logs"
 
-; Clean directories
 Type: dirifempty; Name: "{autopf}\{#MyAppName}"
 Type: dirifempty; Name: "{localappdata}\{#MyAppName}"
 Type: dirifempty; Name: "{app}"
 
-; Clean manifest
 Type: files; Name: "{autopf}\{#MyAppName}\manifest.json"
 Type: files; Name: "{localappdata}\{#MyAppName}\manifest.json"

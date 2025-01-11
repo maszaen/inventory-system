@@ -1,3 +1,0 @@
-mongodb+srv://davaagus602:123dava456@dapking.tmf0y.mongodb.net/InventoryDB?retryWrites=true&w=majority&appName=Dapking
-DB_NAME=InventoryDB
-CONNECTION_STRING=true
