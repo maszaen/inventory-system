@@ -1,5 +1,7 @@
+import os
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMessageBox
+from src.config import Config
 from src.style_config import Theme
 from src.ui.dialogs.change_conn_str import ChangeConnectionDialog
 from src.ui.dialogs.change_db_dialog import ChangeDatabaseDialog
@@ -51,8 +53,13 @@ class MenuBar:
         change_password = QAction("Change Password", self.main_window)
         change_password.triggered.connect(self.show_change_password_dialog)
 
+        logout = QAction("Logout", self.main_window)  # Add logout action
+        logout.triggered.connect(self.main_window.logout)
+
         accounts_menu.addAction(register_user)
         accounts_menu.addAction(change_password)
+        accounts_menu.addSeparator()
+        accounts_menu.addAction(logout)
 
         # Settings Menu
         settings_menu = menubar.addMenu("Settings")
@@ -69,7 +76,7 @@ class MenuBar:
         change_connection = QAction("Change Connection String", self.main_window)
         change_connection.triggered.connect(self.show_change_connection_dialog)
 
-        delete_env = QAction("Delete Environment", self.main_window)
+        delete_env = QAction("Reset Application", self.main_window)
         delete_env.triggered.connect(self.show_delete_env_dialog)
 
         # Add actions to Settings menu
@@ -157,12 +164,51 @@ class MenuBar:
 
         reply = QMessageBox.question(
             self.main_window,
-            "Delete Environment",
-            "Are you sure you want to delete the current environment variables? this application will be closed",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            "Reset Application",
+            "This will delete all configuration files including:\n"
+            "- Encryption key\n"
+            "- Environment files\n"
+            "- Log files\n"
+            "- Temporary files\n\n"
+            "Note: This action will not affect your database; it only resets application settings.\n\n"
+            "This action cannot be undone. Are you sure?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
+        if reply == QMessageBox.StandardButton.Yes:
+            try:
+                self.reset_app()
+                QMessageBox.information(
+                    self.main_window,
+                    "Success",
+                    "All configuration files have been deleted.\n"
+                    "Application will now restart.",
+                )
+                self.main_window.close()
+            except Exception as e:
+                QMessageBox.critical(
+                    self.main_window,
+                    "Error",
+                    f"Failed to delete configurations: {str(e)}",
+                )
 
-        if reply == QMessageBox.Yes:
-            self.main_window.config.remove_env()
-            QMessageBox.information(self.main_window, "Success", "Environment deleted")
+    def reset_app(self):
+        if os.path.exists(Config.ENCRYPTION_KEY_PATH):
+            os.remove(Config.ENCRYPTION_KEY_PATH)
+            key_dir = os.path.dirname(Config.ENCRYPTION_KEY_PATH)
+            if os.path.exists(key_dir):
+                import shutil
+
+                shutil.rmtree(key_dir)
+        if os.path.exists(Config.ENV_FILE_ENC):
+            os.remove(Config.ENV_FILE_ENC)
+        logs_dir = os.path.join(os.path.dirname(Config.ENV_FILE_ENC), "logs")
+        if os.path.exists(logs_dir):
+            import shutil
+
+            shutil.rmtree(logs_dir)
+        if os.path.exists(Config.TEMP_DIR):
+            import shutil
+
+            shutil.rmtree(Config.TEMP_DIR)
+        Config.manifest.reset_to_default()

@@ -31,7 +31,6 @@ class ManifestHandler:
         return False
 
     def _load_manifest(self):
-        """Load or create manifest file"""
         if os.path.exists(self.manifest_path):
             try:
                 with open(self.manifest_path, "r") as f:
@@ -43,11 +42,9 @@ class ManifestHandler:
             self._save_manifest()
 
     def _create_default_manifest(self):
-        """Create default manifest structure"""
         return {"env_path": self.default_env_path, "last_used_env_path": None}
 
     def _save_manifest(self):
-        """Save current manifest to file"""
         try:
             with open(self.manifest_path, "w") as f:
                 json.dump(self.manifest, f, indent=4)
@@ -55,30 +52,28 @@ class ManifestHandler:
             print(f"Error saving manifest: {str(e)}")
 
     def get_env_path(self):
-        """Get current environment file path"""
         return self.manifest.get("env_path", self.default_env_path)
 
     def set_env_path(self, path):
-        """Set new environment file path"""
         if path and os.path.exists(os.path.dirname(path)):
             self.manifest["env_path"] = path
-            self.manifest["last_used_env_path"] = path
+            self.manifest["last_used_env_path"] = os.path.dirname(path)
             self._save_manifest()
             return True
         return False
 
     def get_key_path(self):
-        """Get the path for the encryption key based on the env path"""
-        env_dir = os.path.dirname(self.get_env_path())
-        key_dir = os.path.join(env_dir, "key", "cryptography")
+        default_env_dir = os.path.dirname(self.default_env_path)
+        key_dir = os.path.join(default_env_dir, "key", "cryptography")
         os.makedirs(key_dir, exist_ok=True)
         return os.path.join(key_dir, "209feg98xx.key")
 
     def reset_to_default(self):
-        """Reset environment path to default"""
         self.manifest["env_path"] = self.default_env_path
         self._save_manifest()
 
     def get_last_used_path(self):
-        """Get last successfully used env path"""
-        return self.manifest.get("last_used_env_path", self.default_env_path)
+        last_used = self.manifest.get("last_used_env_path")
+        if last_used and os.path.exists(last_used):
+            return last_used
+        return os.path.dirname(self.default_env_path)

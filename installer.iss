@@ -49,6 +49,57 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Fil
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
+[Code]
+function GetCustomEnvPath(Param: String): String;
+var
+  ManifestFile: String;
+  ManifestContent: String;
+  EnvPath: String;
+begin
+  // Try Program Files manifest first
+  ManifestFile := ExpandConstant('{autopf}\{#MyAppName}\manifest.json');
+  if not FileExists(ManifestFile) then
+    // Try LocalAppData manifest
+    ManifestFile := ExpandConstant('{localappdata}\{#MyAppName}\manifest.json');
+    
+  if FileExists(ManifestFile) then
+  begin
+    LoadStringFromFile(ManifestFile, ManifestContent);
+    // Simple JSON parsing to get env_path
+    if Pos('"env_path":', ManifestContent) > 0 then
+    begin
+      EnvPath := Copy(ManifestContent, Pos('"env_path":', ManifestContent) + 11,Pos('",', ManifestContent) - (Pos('"env_path":', ManifestContent) + 11));
+      Result := EnvPath;
+    end;
+  end;
+end;
+
 [UninstallDelete]
+; Program Files
+Type: filesandordirs; Name: "{autopf}\{#MyAppName}\env"
+Type: filesandordirs; Name: "{autopf}\{#MyAppName}\temp"
+
+; LocalAppData
+Type: filesandordirs; Name: "{localappdata}\{#MyAppName}\env"
+Type: filesandordirs; Name: "{localappdata}\{#MyAppName}\temp"
+
+; Custom
+Type: files; Name: "{code:GetCustomEnvPath}"
+
+; Logs in Program Files
+Type: filesandordirs; Name: "{autopf}\{#MyAppName}\logs"
+
+; Logs in LocalAppData
+Type: filesandordirs; Name: "{localappdata}\{#MyAppName}\logs"
+
+; Logs in application directory
 Type: filesandordirs; Name: "{app}\logs"
+
+; Clean directories
+Type: dirifempty; Name: "{autopf}\{#MyAppName}"
+Type: dirifempty; Name: "{localappdata}\{#MyAppName}"
 Type: dirifempty; Name: "{app}"
+
+; Clean manifest
+Type: files; Name: "{autopf}\{#MyAppName}\manifest.json"
+Type: files; Name: "{localappdata}\{#MyAppName}\manifest.json"

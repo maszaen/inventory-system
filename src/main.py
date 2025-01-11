@@ -34,7 +34,7 @@ def main():
 
             Config.load_env()
 
-        _ = DatabaseConnection.get_instance()
+        db_connection = DatabaseConnection.get_instance()
 
         while True:
             login_window = LoginWindow()
@@ -45,7 +45,9 @@ def main():
                 main_window.show()
                 app.exec()
 
-                if not hasattr(main_window, "logout_requested"):
+                if hasattr(main_window, "logout_requested"):
+                    continue
+                else:
                     break
             else:
                 break
@@ -53,7 +55,7 @@ def main():
     except Exception as e:
         QMessageBox.critical(None, "Error", f"Error: {str(e)}\n\n")
     finally:
-        DatabaseConnection.get_instance().close()
+        db_connection.close()
 
 
 if __name__ == "__main__":

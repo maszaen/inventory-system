@@ -1,6 +1,7 @@
 import os
 import atexit
 from dotenv import load_dotenv
+from PySide6.QtWidgets import QMessageBox
 from cryptography.fernet import Fernet, InvalidToken
 from utils.manifest_handler import ManifestHandler
 
@@ -26,7 +27,6 @@ class Config:
 
     @classmethod
     def load_env(cls):
-        """Load environment variables from the temporary decrypted ENV_FILE."""
         if not os.path.exists(cls.ENV_FILE_ENC):
             print(
                 f"Encrypted .env file not found at {cls.ENV_FILE_ENC}. Initializing default .env."
@@ -51,11 +51,13 @@ class Config:
         DB_NAME=PyStockFlow
         CONNECTION_STRING=false
         """
+
         cls._ensure_temp_dir()
         with open(cls.TEMP_ENV_FILE, "w") as f:
             f.write(default_env)
 
-        cls.encrypt_env_file()
+        if not os.path.exists(cls.ENV_FILE_ENC):
+            cls.encrypt_env_file()
 
     @classmethod
     def decrypt_env_file(cls):
@@ -118,7 +120,6 @@ class Config:
 
     @classmethod
     def save_config(cls, mongodb_uri: str, db_name: str):
-        """Save configuration to the current environment file."""
         try:
             cls._ensure_temp_dir()
             with open(cls.TEMP_ENV_FILE, "w") as f:

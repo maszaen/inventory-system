@@ -61,53 +61,62 @@ class ChangeConnectionDialog(QDialog):
 
     def test_connection(self):
         try:
-            # Verify password first
+            if not self.pass_input.text().strip():
+                raise ValueError("Password cannot be empty")
+
             if not self.current_user.check_password(self.pass_input.text()):
                 raise ValueError("Incorrect password")
 
-            # Test new connection
             uri = self.conn_input.text().strip()
-            client = pymongo.MongoClient(uri)
-            client.server_info()  # This will raise an exception if connection fails
-            client.close()
+            if not uri:
+                raise ValueError("Connection string cannot be empty")
 
-            # Enable save button if connection successful
+            with pymongo.MongoClient(uri) as client:
+                client.server_info()
+
             self.save_btn.setEnabled(True)
             QMessageBox.information(self, "Success", "Connection test successful!")
 
         except ValueError as e:
             QMessageBox.critical(self, "Error", str(e))
+            self.save_btn.setEnabled(False)
         except Exception as e:
             QMessageBox.critical(
                 self, "Connection Error", f"Failed to connect: {str(e)}"
             )
+            self.save_btn.setEnabled(False)
 
     def save_changes(self):
         try:
+            if not self.pass_input.text().strip():
+                raise ValueError("Password cannot be empty")
+
             if not self.current_user.check_password(self.pass_input.text()):
                 raise ValueError("Incorrect password")
+
+            uri = self.conn_input.text().strip()
+            if not uri:
+                raise ValueError("Connection string cannot be empty")
 
             reply = QMessageBox.question(
                 self,
                 "Confirm Change",
                 "Changing connection string requires application restart.\nProceed with change?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
 
-            if reply == QMessageBox.Yes:
-                Config.save_config(
-                    self.conn_input.text().strip(),
-                    Config.DB_NAME,
-                )
+            if reply == QMessageBox.StandardButton.Yes:
+                Config.save_config(uri, Config.DB_NAME)
 
                 QMessageBox.information(
                     self,
                     "Success",
                     "Connection string changed successfully.\nApplication will now close.\n\nPlease restart the application.",
                 )
-
                 self.parent().close()
 
+        except ValueError as e:
+            QMessageBox.critical(self, "Error", str(e))
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save changes: {str(e)}")

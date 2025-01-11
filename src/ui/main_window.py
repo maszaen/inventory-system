@@ -280,8 +280,16 @@ class MainWindow(QMainWindow):
             self,
             "Logout",
             "Are you sure you want to logout?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
-        if reply == QMessageBox.Yes:
-            self.close()
+        if reply == QMessageBox.StandardButton.Yes:
+            try:
+                if self.user:
+                    self.logger.log_action(f"User {self.user.username} logged out")
+                    self.user = None
+                self.logout_requested = True
+                self.close()
+            except Exception as e:
+                print(f"Failed to log logout event: {str(e)}")
+                self.close()

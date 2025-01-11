@@ -1,3 +1,5 @@
+import os
+
 from PySide6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -10,6 +12,8 @@ from PySide6.QtWidgets import (
 )
 from src.style_config import Theme
 from src.config import Config
+from src.utils.manifest_handler import ManifestHandler
+from cryptography.fernet import Fernet
 
 
 class EnvironmentPathDialog(QDialog):
@@ -28,7 +32,7 @@ class EnvironmentPathDialog(QDialog):
 
         # Current path display
         current_label = QLabel("Current Environment Path:")
-        self.current_path = QLabel(Config.ENV_FILE)
+        self.current_path = QLabel(Config.ENV_FILE_ENC)
         self.current_path.setStyleSheet("color: gray;")
 
         # New path input
@@ -65,27 +69,55 @@ class EnvironmentPathDialog(QDialog):
         layout.addLayout(button_layout)
 
     def browse_path(self):
-        """Open file dialog to select environment file"""
-        file_name, _ = QFileDialog.getSaveFileName(
-            self,
-            "Select Environment File",
-            Config.manifest.get_last_used_path(),
-            "Environment Files (*.env);;All Files (*.*)",
+        folder_path = QFileDialog.getExistingDirectory(
+            self, "Select Environment Folder", Config.manifest.get_last_used_path()
         )
 
-        if file_name:
-            self.path_input.setText(file_name)
+        if folder_path:
+            env_path = os.path.join(folder_path, ".env")
+            self.path_input.setText(env_path)
 
     def save_changes(self):
-        """Save new environment file path"""
-        new_path = self.path_input.text().strip()
+        manifest = ManifestHandler(Config.BASE_DIR)
+        new_folder = self.path_input.text().strip()
 
-        if not new_path:
-            QMessageBox.warning(self, "Error", "Please select a path")
+        if not new_folder:
+            QMessageBox.warning(self, "Error", "Please select a folder")
             return
 
         try:
-            if Config.set_env_path(new_path):
+            os.makedirs(new_folder, exist_ok=True)
+
+            if not os.access(new_folder, os.W_OK):
+                raise PermissionError("No write permission for selected folder")
+
+            new_env_path = os.path.join(new_folder, ".env")
+            new_logs_dir = os.path.join(new_folder, "logs")
+
+            old_env_path = Config.ENV_FILE_ENC
+            if os.path.exists(old_env_path):
+                os.remove(old_env_path)
+
+            old_logs_dir = os.path.join(os.path.dirname(old_env_path), "logs")
+            if os.path.exists(old_logs_dir):
+                import shutil
+
+                shutil.rmtree(old_logs_dir)
+
+            os.makedirs(new_logs_dir, exist_ok=True)
+
+            with open(Config.TEMP_ENV_FILE, "rb") as src:
+                plain_data = src.read()
+
+            with open(Config.ENCRYPTION_KEY_PATH, "rb") as key_file:
+                encryption_key = key_file.read()
+            fernet = Fernet(encryption_key)
+
+            encrypted_data = fernet.encrypt(plain_data)
+            with open(new_env_path, "wb") as dst:
+                dst.write(encrypted_data)
+
+            if manifest.set_env_path(new_env_path):
                 QMessageBox.information(
                     self,
                     "Success",
@@ -101,7 +133,6 @@ class EnvironmentPathDialog(QDialog):
             )
 
     def reset_to_default(self):
-        """Reset to default environment path"""
         reply = QMessageBox.question(
             self,
             "Reset Environment Path",
@@ -112,7 +143,7 @@ class EnvironmentPathDialog(QDialog):
 
         if reply == QMessageBox.Yes:
             Config.manifest.reset_to_default()
-            Config.ENV_FILE = Config.manifest.get_env_path()
+            Config.ENV_FILE_ENC = Config.manifest.get_env_path()
             Config.load_env()
 
             QMessageBox.information(
@@ -120,4 +151,4 @@ class EnvironmentPathDialog(QDialog):
                 "Success",
                 "Environment path reset to default.\nApplication will now restart.",
             )
-            self.parent().close()  # This will trigger application restart
+            self.parent().close()
