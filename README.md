@@ -1,10 +1,12 @@
-# PyStockFlow Docs v5.0
+# PyStockFlow Docs v5.5
 > Developed and Maintained by Zaeni Ahmad __(maszaen)__
 
 Catatan: Aplikasi ini telah dikompilasi menjadi file executable (.exe) menggunakan Nuitka dan dibuat installer menggunakan Inno Setup. Untuk mencoba aplikasi ini, Kamu bisa:
 
 - Download installer PyStockFlow terbaru  [_Disini_](https://github.com/maszaen/inventory-system/releases/download/stable-relase-v5.0/PyStockFlow_Setup.exe).
 - Atau clone repository ini dan jalankan aplikasi dari source code (link dokumentasi akan segera dibuat)
+
+Untuk melihat flowchart lengkap dari aplikasi ini, bisa klik [_Disini_](https://github.com/maszaen/inventory-system/releases/download/stable-relase-v5.0/PyStockFlow_Flowcharts.drawio) untuk mendownload file flowchart.
 
 ## Arsitektur
 
