@@ -8,6 +8,9 @@ Catatan: Aplikasi ini telah dikompilasi menjadi file executable (.exe) menggunak
 
 Untuk melihat flowchart lengkap dari aplikasi ini, bisa klik [_Disini_](https://github.com/maszaen/inventory-system/releases/download/stable-relase-v5.0/PyStockFlow_Flowcharts.drawio) untuk mendownload file flowchart.
 
+## Introduction
+PyStockFlow adalah aplikasi open-source untuk manajemen inventaris dan penjualan yang menggunakan bahasa pemrograman Python, PySide6 untuk GUI, serta MongoDB Atlas sebagai database cloud. Aplikasi ini dirancang untuk membantu bisnis kecil dan menengah dalam mengelola produk, transaksi penjualan, dan laporan secara efisien. Dengan sistem yang mudah digunakan dan fitur multi-user, PyStockFlow memberikan solusi manajemen yang lebih baik dan dapat diakses secara real-time.
+
 ## Arsitektur
 
 - PyQt (pyside6) GUI
