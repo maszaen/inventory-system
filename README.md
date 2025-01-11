@@ -69,9 +69,10 @@ python -m src.main
    - Buat cluster baru
    - Buat database baru, dengan collection pertama users, lalu klik create database
    - Ke tab Cluster, klik Connect pada cluster, lalu pilih drivers, lalu Copy koneksi string
-   - Whitelist IP address
+   - Whitelist IP address, [Cara Whitelist IP](https://www.mongodb.com/docs/atlas/security/ip-access-list/)
    - Jika koneksi string sudah ada, bisa masukkan ke setup database aplikasi pada window awal, lalu pilih database
-   - Jika belum paham, bisa cek dokumentasi langsung dari mongodb untuk setup database [MongoDB Documentation](https://www.mongodb.com/docs/)
+   - Jika belum paham, bisa cek dokumentasi langsung dari mongodb untuk setup database [Klik disini](https://www.mongodb.com/docs/)
+   - atau bisa gunakan database yg kami sediakan, [Klik disini](https://github.com/maszaen/inventory-system/blob/main/credential-testing.txt)
    
 3. Login/Register:
    - Login dengan akun yang sudah ada, atau
